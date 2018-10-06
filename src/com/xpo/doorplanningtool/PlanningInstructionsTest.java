@@ -1,5 +1,6 @@
 package com.xpo.doorplanningtool;
 
+import com.xpo.doorplanningtool.util.EmailUtil;
 import org.apache.log4j.FileAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -127,9 +128,10 @@ public class PlanningInstructionsTest {
 
                 if(sending_email_ind)
                 {
+                    EmailUtil sendEmail = new EmailUtil();
                     String to_address1 =  "Liza.Zamora@xpo.com";
                     //String to_address1 =  "opspersonnel-" + sic + "@con-way.com";
-                    sendJavaMail(sic, output_file_name, to_address1, shift_abbreviation);
+                    sendEmail.sendJavaMail(sic, output_file_name, to_address1, shift_abbreviation);
                 }
                 return;
             }
@@ -1019,9 +1021,10 @@ public class PlanningInstructionsTest {
 
             if(sending_email_ind)
             {
+                EmailUtil sendEmail = new EmailUtil();
                 String to_address1 =  "Liza.Zamora@xpo.com";
                 //String to_address1 =  "opspersonnel-" + sic + "@con-way.com";
-                sendJavaMail(sic, door_planning_file, to_address1, shift_abbreviation);
+                sendEmail.sendJavaMail(sic, door_planning_file, to_address1, shift_abbreviation);
                 //String to_address2 =  "east.jacob@con-way.com";
                 //sendJavaMail(sic, door_planning_file, to_address2);
                 //String to_address3 =  "leathers.michael@con-way.com";
@@ -1087,71 +1090,7 @@ public class PlanningInstructionsTest {
         }
         return null;
     }
-    public void sendJavaMail(String sic, String filename, String to_address, String shift_abbreviation)
-    {
-        // Recipient's email ID needs to be mentioned.
-        //String to = "opspersonnel-" + sic + "@con-way.com";
-        //String to = "zhang.mingming@con-way.com";
-        // Sender's email ID needs to be mentioned
-        String from = "bisubscriptions@xpo.com";
 
-        // Assuming you are sending email from localhost
-        //String host = "CGOPRCL001.conway.prod.con-way.com";
-        String host ="mailhost.con-way.com";
-        // Get system properties
-        Properties properties = System.getProperties();
-
-        // Setup mail server
-        properties.setProperty("mail.smtp.host", host);
-
-        // Get the default Session object.
-        Session session = Session.getDefaultInstance(properties);
-
-        try{
-            // Create a default MimeMessage object.
-            MimeMessage message = new MimeMessage(session);
-
-            // Set From: header field of the header.
-            message.setFrom(new InternetAddress(from));
-
-            // Set To: header field of the header.
-            message.addRecipient(Message.RecipientType.TO,
-                    new InternetAddress(to_address));
-
-            // Set Subject: header field
-            message.setSubject("Door Planning Tool" + shift_abbreviation);
-
-            // Create the message part
-            BodyPart messageBodyPart = new MimeBodyPart();
-
-            // Fill the message
-            messageBodyPart.setText("The door planning tool is also available at O:\\Freight\\FreightFlowPlans\\PLANNING WORKBOOKS\n");
-
-            // Create a multipar message
-            Multipart multipart = new MimeMultipart();
-
-            // Set text message part
-            multipart.addBodyPart(messageBodyPart);
-
-            // Part two is attachment
-            messageBodyPart = new MimeBodyPart();
-            DataSource source = new FileDataSource(filename);
-            messageBodyPart.setDataHandler(new DataHandler(source));
-
-            String new_file_name = "Door Planning Tool " + shift_abbreviation + ".xls";
-            messageBodyPart.setFileName(new_file_name);
-            multipart.addBodyPart(messageBodyPart);
-
-            // Send the complete message parts
-            message.setContent(multipart );
-
-            // Send message
-            Transport.send(message);
-            System.out.println("Sent message successfully....");
-        }catch (MessagingException mex) {
-            mex.printStackTrace();
-        }
-    }
 
 
 }
