@@ -1,5 +1,6 @@
 package com.xpo.doorplanningtool;
 
+import com.xpo.doorplanningtool.database.DBConnection;
 import com.xpo.doorplanningtool.util.DatabaseUtil;
 import com.xpo.doorplanningtool.util.EmailUtil;
 import com.xpo.doorplanningtool.vo.Plan;
@@ -63,10 +64,8 @@ public class PlanningInstructionsTest {
 
         logger.debug("Started");
 
-
-
-        Connection prdwhsevwConn = null;
-        Connection prdcwfengConn = null;
+        DBConnection prdwhsevwConn = null;
+        DBConnection prdcwfengConn = null;
         System.out.println(sic);
 
         int rowCounter=0;
@@ -131,12 +130,10 @@ public class PlanningInstructionsTest {
 
             prdwhsevwConn = getConnection_PRD_WHSEVIEW();
 
-            Statement stmt = prdwhsevwConn.createStatement();
-            DatabaseUtil.executeUpdate1(stmt, plan);
-            ResultSet rs = DatabaseUtil.executeQuery1(stmt, plan);
+            DatabaseUtil.executeUpdate1(prdwhsevwConn, plan);
+            ResultSet rs = DatabaseUtil.executeQuery1(prdwhsevwConn, plan);
             rs.setFetchSize(10000);
 
-            Statement stmt_cwfeng = prdcwfengConn.createStatement();
 
             String orig_sic;
             String orig_shift;
@@ -510,23 +507,14 @@ public class PlanningInstructionsTest {
             // sheet.setColumnView(17, 11);
 
 
-            //System.out.println("point 4");
-
-            String sql_query2 = "select sic from sic_doors;";
-
-            if(fac_shift)
-                sql_query2 = "select sic from sic_doors where bypass ='X';";
 
             //System.out.println(sql_query2);
-            ResultSet rs2 = stmt.executeQuery(sql_query2);
+            ResultSet rs2 = DatabaseUtil.executeQuerySicDoors(prdwhsevwConn, plan);
             //System.out.println("point 4.1");
             // rs2.setFetchSize(10000);
 
 
-            String door_sic;
-            int door_sic_counter = 0;
 
-            PreparedStatement prepared_statement = null;
 
 
 
@@ -546,27 +534,10 @@ public class PlanningInstructionsTest {
             }
             else
             {
-                String insertTableSQL =  "insert into sic_doors_tmp (LAUNCH_DATE, DOOR_SIC, ORIG_SIC, SHIFT) values (?, ?, ?, ?)";
-                //System.out.println("point 4.11");
-                prepared_statement = prdcwfengConn.prepareStatement(insertTableSQL);
-                //System.out.println("point 4.12");
-                do {
-                    door_sic_counter++;
-                    door_sic = rs2.getString("sic");
-                    String sql_updated_cwfeng = "insert into sic_doors_tmp values('" + plan.getInstruction_date() +"', '" + door_sic + "','" + sic + "','" + plan.getShift() + "');"; // to be updated
-                    //System.out.println(sql_updated_cwfeng + "\n");
-                    prepared_statement.setString(1, plan.getInstruction_date());
-                    prepared_statement.setString(2, door_sic);
-                    prepared_statement.setString(3, sic);
-                    prepared_statement.setString(4, plan.getShift());
-                    prepared_statement.addBatch();
-                    //stmt_cwfeng.executeUpdate(sql_updated_cwfeng);
-                }   while (rs2.next());
-                prepared_statement.executeBatch();
-                prdcwfengConn.commit();
+                DatabaseUtil.insertSicDoorsTemp(prdcwfengConn, plan, rs2);
             }
 
-            rs = DatabaseUtil.executeAddDoorQuery(stmt_cwfeng, plan);
+            rs = DatabaseUtil.executeAddDoorQuery(prdcwfengConn, plan);
             rs.setFetchSize(1000);
             rowCounter = 0;
 
@@ -601,7 +572,7 @@ public class PlanningInstructionsTest {
             removed_door_header.setCellStyle(header_highlighted_style);
 
 
-            rs = DatabaseUtil.executeRemoveDoorQuery(stmt_cwfeng, plan);
+            rs = DatabaseUtil.executeRemoveDoorQuery(prdcwfengConn, plan);
 
             rs.setFetchSize(1000);
             //System.out.println("point 6");
@@ -669,38 +640,18 @@ public class PlanningInstructionsTest {
         }
 
     }
-    public static Connection getConnection_PRD_CWFENG() throws SQLException
+    public static DBConnection getConnection_PRD_CWFENG() throws SQLException
     {
-        try
-        {
-            Class.forName("org.netezza.Driver").newInstance();
-            Connection c = DriverManager.getConnection("jdbc:netezza://npsdwh.con-way.com/PRD_CWFENG", "MXBUHAY", "miguel082416");
-            c.setAutoCommit(false);
-            return c;
-        }
-        catch (Exception e)
-        {
-            System.out.println
-                    ("Error, CWFENG Connection not made.\n");
-        }
-        return null;
+        DBConnection connection = new DBConnection("jdbc:netezza://npsdwh.con-way.com/PRD_CWFENG", "MXBUHAY", "miguel082416");
+        connection.createConnection();
+        return connection;
 
     }
-    public static Connection getConnection_PRD_WHSEVIEW() throws SQLException
+    public static DBConnection getConnection_PRD_WHSEVIEW() throws SQLException
     {
-        try
-        {
-            Class.forName("org.netezza.Driver").newInstance();
-            Connection c = DriverManager.getConnection("jdbc:netezza://npsdwh.con-way.com/PRD_WHSEVIEW?allowMultiQuery=true", "MXBUHAY", "miguel082416");
-            c.setAutoCommit(false);
-            return c;
-        }
-        catch (Exception e)
-        {
-            System.out.println
-                    ("Error, WHSEVIEW Connection not made.\n");
-        }
-        return null;
+        DBConnection connection = new DBConnection("jdbc:netezza://npsdwh.con-way.com/PRD_WHSEVIEW?allowMultiQuery=true", "MXBUHAY", "miguel082416");
+        connection.createConnection();
+        return connection;
     }
 
 

@@ -1,5 +1,6 @@
 package com.xpo.doorplanningtool.util;
 
+import com.xpo.doorplanningtool.database.DBConnection;
 import com.xpo.doorplanningtool.vo.Plan;
 
 import java.sql.*;
@@ -7,7 +8,7 @@ import java.sql.*;
 public class DatabaseUtil {
 
 
-    public static ResultSet executeAddDoorQuery(Statement statement, Plan plan) throws SQLException {
+    public static ResultSet executeAddDoorQuery(DBConnection connection, Plan plan) throws SQLException {
         String add_door_sql_query = "select distinct A.door_sic from \n" +
                 "sic_doors_tmp as A\n" +
                 "left join\n" +
@@ -20,27 +21,26 @@ public class DatabaseUtil {
                 "where A.launch_date = '" + plan.getInstruction_date() + "' and A.orig_sic='" + plan.getSic() + "' and B.door_sic is null and A.shift = '" + plan.getShift() + "'\n"  +
                 "order by A.door_sic; ";
 
-        return statement.executeQuery(add_door_sql_query);
+        return connection.executeQuery(add_door_sql_query);
     }
 
-    public static ResultSet executeRemoveDoorQuery(Statement statement, Plan plan) throws SQLException {
+    public static ResultSet executeRemoveDoorQuery(DBConnection connection, Plan plan) throws SQLException {
         String remove_door_sql_query = "select A.door_sic from (select distinct door_sic from \n" +
                 "sic_doors_tmp where launch_date= '" + plan.getPrevious_instruction_date() + "' and orig_sic='" + plan.getSic() + "' and shift = '" + plan.getShift() + "' ) as A\n" +
                 "left join\n" +
                 "(select distinct door_sic from \n" +
                 "sic_doors_tmp where launch_date='" + plan.getInstruction_date() + "' and orig_sic = '" + plan.getSic() + "' and shift ='" + plan.getShift() + "') as B on A.door_sic = B.door_sic  where B.door_sic is null ;\n";
 
-        return statement.executeQuery(remove_door_sql_query);
+        return connection.executeQuery(remove_door_sql_query);
     }
 
-    public static ResultSet executeQuery1(Statement statement, Plan plan) throws SQLException {
+    public static ResultSet executeQuery1(DBConnection connection, Plan plan) throws SQLException {
         String sql_query1 = "select *  from ffo_planning_tool order by orig_sic, orig_shift, load_to_mode1, load_to_sic1 desc, load_to_shift1 desc, must_clear_sic desc, must_clear_shift desc, daylane_freight desc, load_to_sic2 desc, load_to_shift2 desc, load_to_sic3 desc, load_to_shift3 desc, dest_sic desc;";
         System.out.println(sql_query1);
-        ResultSet rs = statement.executeQuery(sql_query1);
-        return rs;
+        return connection.executeQuery(sql_query1);
     }
 
-    public static void executeUpdate1(Statement statement, Plan plan) throws SQLException {
+    public static void executeUpdate1(DBConnection connection, Plan plan) throws SQLException {
 
         String shift = plan.getShift();
         String beginning_date = plan.getBeginning_date();
@@ -333,7 +333,38 @@ public class DatabaseUtil {
                 "select load_to_sic1 as sic, bypass from ffo_base_plan_1st_fac_combined where head_load ='X');";
 
         System.out.println(sql_updated);
-        statement.executeUpdate(sql_updated);
+        connection.executeUpdate(sql_updated);
+    }
 
+    public static ResultSet executeQuerySicDoors(DBConnection connection, Plan plan) throws SQLException {
+        String sql_query2 = "select sic from sic_doors;";
+        if(plan.isFac_shift())
+            sql_query2 = "select sic from sic_doors where bypass ='X';";
+        return connection.executeQuery(sql_query2);
+    }
+
+    public static void insertSicDoorsTemp(DBConnection connection, Plan plan, ResultSet rs2) throws SQLException {
+        Connection conn =connection.getConnection();
+        String insertTableSQL =  "insert into sic_doors_tmp (LAUNCH_DATE, DOOR_SIC, ORIG_SIC, SHIFT) values (?, ?, ?, ?)";
+        //System.out.println("point 4.11");
+        PreparedStatement prepared_statement = conn.prepareStatement(insertTableSQL);
+        //System.out.println("point 4.12");
+        String door_sic;
+        int door_sic_counter = 0;
+
+        do {
+            door_sic_counter++;
+            door_sic = rs2.getString("sic");
+            String sql_updated_cwfeng = "insert into sic_doors_tmp values('" + plan.getInstruction_date() +"', '" + door_sic + "','" + plan.getSic() + "','" + plan.getShift() + "');"; // to be updated
+            //System.out.println(sql_updated_cwfeng + "\n");
+            prepared_statement.setString(1, plan.getInstruction_date());
+            prepared_statement.setString(2, door_sic);
+            prepared_statement.setString(3, plan.getSic());
+            prepared_statement.setString(4, plan.getShift());
+            prepared_statement.addBatch();
+            //stmt_cwfeng.executeUpdate(sql_updated_cwfeng);
+        }   while (rs2.next());
+        prepared_statement.executeBatch();
+        conn.commit();
     }
 }
