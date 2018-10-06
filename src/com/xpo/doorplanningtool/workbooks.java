@@ -5,6 +5,8 @@ package com.xpo.doorplanningtool; /**
  * Time: 10:41 PM
  * To change this template use File | Settings | File Templates.
  */
+import com.xpo.doorplanningtool.vo.Plan;
+
 import java.io.*;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -263,7 +265,7 @@ public class workbooks {
                if (report_opportunity)
                    rehandleOpportunity.calculateOpportunity(sic, beginning_date_str, ending_date_str);
                else if (planning_instructions)
-                   planningInstructionsTest.generateInstructions(sic, beginning_date_str, ending_date_str, instruction_date_str, prev_instruction_date_str, sending_email, fac_shift, is_exception_date);
+                   planningInstructionsTest.generateInstructions(new Plan(sic, beginning_date_str, ending_date_str, instruction_date_str, prev_instruction_date_str, sending_email, fac_shift, is_exception_date));
 
            }
 
