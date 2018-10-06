@@ -30,7 +30,7 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
  * To change this template use File | Settings | File Templates.
  */
 public class PlanningInstructionsTest {
-    private static final Logger log = Logger.getLogger(PlanningInstructionsTest.class);
+    //private static final Logger log = Logger.getLogger(PlanningInstructionsTest.class);
     void generateInstructions(String sic, String beginning_date, String ending_date, String instruction_date, String previous_instruction_date, boolean sending_email_ind, boolean fac_shift, boolean is_exception_date)
     {
 
@@ -102,11 +102,11 @@ public class PlanningInstructionsTest {
 
                 for ( int nrow = 1; nrow < 150; nrow++ )
                 {
-                   row= my_worksheet.getRow(nrow);
+                    row= my_worksheet.getRow(nrow);
 
 //The below method removes only cell values not row.
-                   if (! (row == null) )
-                      my_worksheet.removeRow(row);
+                    if (! (row == null) )
+                        my_worksheet.removeRow(row);
                 }
 
                 //set cell value at tow 2 column 1.
@@ -115,8 +115,8 @@ public class PlanningInstructionsTest {
                 //Close the InputStream
                 input_document.close();
                 //Open FileOutputStream to write updates
-                //String output_file_name = "C:\\Projects\\data\\" + sic + "_door_planning_" + shift_abbreviation + ".xls";
-                String output_file_name = "\\\\cgoprfp003\\public\\Freight\\FreightFlowPlans\\PLANNING WORKBOOKS\\" + sic + "_door_planning_" + shift_abbreviation + ".xls";
+                String output_file_name = "C:\\Projects\\data\\" + sic + "_door_planning_" + shift_abbreviation + ".xls";
+                //String output_file_name = "\\\\cgoprfp003\\public\\Freight\\FreightFlowPlans\\PLANNING WORKBOOKS\\" + sic + "_door_planning_" + shift_abbreviation + ".xls";
                 FileOutputStream output_file =new FileOutputStream(new File(output_file_name));
                 //write changes
                 my_xls_workbook.write(output_file);
@@ -125,8 +125,8 @@ public class PlanningInstructionsTest {
 
                 if(sending_email_ind)
                 {
-                    //String to_address1 =  "Miguel.Buhay@xpo.com";
-                    String to_address1 =  "opspersonnel-" + sic + "@con-way.com";
+                    String to_address1 =  "Liza.Zamora@xpo.com";
+                    //String to_address1 =  "opspersonnel-" + sic + "@con-way.com";
                     sendJavaMail(sic, output_file_name, to_address1, shift_abbreviation);
                 }
                 return;
@@ -185,7 +185,7 @@ public class PlanningInstructionsTest {
                     "\n" +
                     "\n" +
                     "create  temp table ffo_base_plan_od as\n" +
-                    "(select orig_sic, orig_shift, load_to_mode1, load_to_sic1, load_to_shift1, must_clear_sic, must_clear_shift, daylane_freight, load_to_sic2, load_to_shift2, load_to_sic3, load_to_shift3, dest_sic, sum(case when cube_out/1157.0 >=0.4 or weight_out >=22500 then 1 else 0 end) as head_load_hit_days, head_load_hit_days/5.0 as head_load_hit_ratio, case when head_load_hit_days =0 then 0 else sum(case when cube_out/1157.0 >=0.4 or weight_out >=22500 then weight_out else 0 end)/head_load_hit_days end as head_load_avg_weight, case when head_load_hit_days=0 then 0 else sum(case when cube_out/1157.0 >=0.4 or weight_out >=22500 then cube_out/1157.0 else 0 end)/head_load_hit_days end as head_load_avg_cube, sum(case when cube_out/1157.0 >=0.85 or weight_out >=22500 then 1 else 0 end) as bypass_hit_days,  bypass_hit_days/5.0 as bypass_hit_ratio, case when bypass_hit_days = 0 then 0 else sum(case when cube_out/1157.0 >=0.85 or weight_out >=22500 then weight_out else 0 end)/bypass_hit_days end as bypass_avg_weight, case when bypass_hit_days = 0 then 0 else sum(case when cube_out/1157.0 >=0.85 or weight_out >=22500 then cube_out/1157.0 else 0 end)/bypass_hit_days end as bypass_avg_cube, case when head_load_hit_ratio >= 0.6 then 'X' else '' end as head_load, case when bypass_hit_ratio >=" + bypass_frequency + " then 'X' else '' end as bypass, sum(cube_out/1157.0)/5.0 as avg_cube, sum(weight_out)/5.0 as avg_weight  from ffo_extracts_otb \n" +
+                    "(select orig_sic, orig_shift, load_to_mode1, load_to_sic1, load_to_shift1, must_clear_sic, must_clear_shift, daylane_freight, load_to_sic2, load_to_shift2, load_to_sic3, load_to_shift3, dest_sic, sum(case when cube_out/1270.0 >=0.4 or weight_out >=22500 then 1 else 0 end) as head_load_hit_days, head_load_hit_days/5.0 as head_load_hit_ratio, case when head_load_hit_days =0 then 0 else sum(case when cube_out/1270.0 >=0.4 or weight_out >=22500 then weight_out else 0 end)/head_load_hit_days end as head_load_avg_weight, case when head_load_hit_days=0 then 0 else sum(case when cube_out/1270.0 >=0.4 or weight_out >=22500 then cube_out/1270.0 else 0 end)/head_load_hit_days end as head_load_avg_cube, sum(case when cube_out/1270.0 >=0.85 or weight_out >=22500 then 1 else 0 end) as bypass_hit_days,  bypass_hit_days/5.0 as bypass_hit_ratio, case when bypass_hit_days = 0 then 0 else sum(case when cube_out/1270.0 >=0.85 or weight_out >=22500 then weight_out else 0 end)/bypass_hit_days end as bypass_avg_weight, case when bypass_hit_days = 0 then 0 else sum(case when cube_out/1270.0 >=0.85 or weight_out >=22500 then cube_out/1270.0 else 0 end)/bypass_hit_days end as bypass_avg_cube, case when head_load_hit_ratio >= 0.6 then 'X' else '' end as head_load, case when bypass_hit_ratio >=" + bypass_frequency + " then 'X' else '' end as bypass, sum(cube_out/1270.0)/5.0 as avg_cube, sum(weight_out)/5.0 as avg_weight  from ffo_extracts_otb \n" +
                     "group by 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13);\n" +
                     "\n" +
                     "create temp table exclusive_lanes as\n" +
@@ -246,7 +246,7 @@ public class PlanningInstructionsTest {
                     "              load_to_sic3,\n" +
                     "              load_to_shift3,\n" +
                     "              sum(weight_out) as total_weight_out,\n" +
-                    "              sum(cube_out)/1157.0 as total_cube_out,\n" +
+                    "              sum(cube_out)/1270.0 as total_cube_out,\n" +
                     "              case when total_cube_out>=0.4 or total_weight_out >=22500 then 1 else 0 end as mark_head_load,\n" +
                     "              case when total_cube_out>=0.85 or total_weight_out >=22500 then 1 else 0 end as mark_bypass   \n" +
                     "       from ffo_extracts_otb\n" +
@@ -295,7 +295,7 @@ public class PlanningInstructionsTest {
                     "              load_to_sic2,\n" +
                     "              load_to_shift2,\n" +
                     "              sum(weight_out) as total_weight_out,\n" +
-                    "              sum(cube_out)/1157.0 as total_cube_out,\n" +
+                    "              sum(cube_out)/1270.0 as total_cube_out,\n" +
                     "              case when total_cube_out>=0.4 or total_weight_out >=22500 then 1 else 0 end as mark_head_load,\n" +
                     "              case when total_cube_out>=0.85 or total_weight_out >=22500 then 1 else 0 end as mark_bypass   \n" +
                     "       from ffo_extracts_otb\n" +
@@ -343,7 +343,7 @@ public class PlanningInstructionsTest {
                     "              must_clear_shift,\n" +
                     "              daylane_freight,\n" +
                     "              sum(weight_out) as total_weight_out,\n" +
-                    "              sum(cube_out)/1157.0 as total_cube_out,\n" +
+                    "              sum(cube_out)/1270.0 as total_cube_out,\n" +
                     "              case when total_cube_out>=0.4 or total_weight_out >=22500 then 1 else 0 end as mark_head_load,\n" +
                     "              case when total_cube_out>=0.85 or total_weight_out >=22500 then 1 else 0 end as mark_bypass   \n" +
                     "       from ffo_extracts_otb\n" +
@@ -386,7 +386,7 @@ public class PlanningInstructionsTest {
                     "              load_to_sic1,\n" +
                     "              load_to_shift1,\n" +
                     "              sum(weight_out) as total_weight_out,\n" +
-                    "              sum(cube_out)/1157.0 as total_cube_out,\n" +
+                    "              sum(cube_out)/1270.0 as total_cube_out,\n" +
                     "              case when total_cube_out>=0.4 or total_weight_out >=22500 then 1 else 0 end as mark_head_load,\n" +
                     "              case when total_cube_out>=0.85 or total_weight_out >=22500 then 1 else 0 end as mark_bypass   \n" +
                     "       from ffo_extracts_otb\n" +
@@ -422,16 +422,16 @@ public class PlanningInstructionsTest {
                     "select \"" + instruction_date + "\" as launch_date, must_clear_sic as sic, "+ sic + "   from ffo_base_plan_must_clear_sic_combined where head_load ='X'\n" +
                     "union\n" +
                     "select \"" + instruction_date + "\" as launch_date, load_to_sic1 as sic, "+ sic + " from ffo_base_plan_1st_fac_combined where head_load ='X');";    */
-                      " create temp table sic_doors as \n" +
-                        "(select  dest_sic as sic, bypass from ffo_base_plan_od_exclusive where head_load ='X'\n" +
-                        "union\n" +
-                        "select load_to_sic3 as sic, bypass from ffo_base_plan_3rd_fac_combined where head_load ='X'\n" +
-                        "union\n" +
-                        "select load_to_sic2 as sic, bypass from ffo_base_plan_2nd_fac_combined where head_load ='X'\n" +
-                        "union\n" +
-                        "select  must_clear_sic as sic, bypass  from ffo_base_plan_must_clear_sic_combined where head_load ='X'\n" +
-                        "union\n" +
-                        "select load_to_sic1 as sic, bypass from ffo_base_plan_1st_fac_combined where head_load ='X');";
+                    " create temp table sic_doors as \n" +
+                    "(select  dest_sic as sic, bypass from ffo_base_plan_od_exclusive where head_load ='X'\n" +
+                    "union\n" +
+                    "select load_to_sic3 as sic, bypass from ffo_base_plan_3rd_fac_combined where head_load ='X'\n" +
+                    "union\n" +
+                    "select load_to_sic2 as sic, bypass from ffo_base_plan_2nd_fac_combined where head_load ='X'\n" +
+                    "union\n" +
+                    "select  must_clear_sic as sic, bypass  from ffo_base_plan_must_clear_sic_combined where head_load ='X'\n" +
+                    "union\n" +
+                    "select load_to_sic1 as sic, bypass from ffo_base_plan_1st_fac_combined where head_load ='X');";
 
 
 
@@ -516,11 +516,11 @@ public class PlanningInstructionsTest {
 
             //header_format.setBorder(jxl.format.Border.ALL, jxl.format.BorderLineStyle.THIN, jxl.format.Colour.BLACK);
 
-           // String headers[] = new String[] {"Sic", "Shift", "Load To Mode1", "1st FAC", "Must Move", "Must Move to Shift", "Load To Mode2", "2nd FAC",  "Load To Mode3", "3rd FAC",
-           //         "Dest Sic", "Head Load", "Bypass", "Head Load Hit Ratio", "Head Load Avg Weight", "Head Load Avg Cube", "Bypass Hit Ratio", "Bypass Avg Weight", "Bypass Avg Cube"};
+            // String headers[] = new String[] {"Sic", "Shift", "Load To Mode1", "1st FAC", "Must Move", "Must Move to Shift", "Load To Mode2", "2nd FAC",  "Load To Mode3", "3rd FAC",
+            //         "Dest Sic", "Head Load", "Bypass", "Head Load Hit Ratio", "Head Load Avg Weight", "Head Load Avg Cube", "Bypass Hit Ratio", "Bypass Avg Weight", "Bypass Avg Cube"};
 
-           // String headers[] = new String[] {"SIC", "Shift", "Load To Mode1", "DAYFRT", "1st FAC", "Must Clear", "Must Clear Shift", "2nd FAC", "3rd FAC",
-           //                  "Dest Sic", "Head Load", "Bypass", "Head Load Hit Ratio", "Head Load Avg Weight", "Head Load Avg Cube", "Bypass Hit Ratio", "Bypass Avg Weight", "Bypass Avg Cube"};
+            // String headers[] = new String[] {"SIC", "Shift", "Load To Mode1", "DAYFRT", "1st FAC", "Must Clear", "Must Clear Shift", "2nd FAC", "3rd FAC",
+            //                  "Dest Sic", "Head Load", "Bypass", "Head Load Hit Ratio", "Head Load Avg Weight", "Head Load Avg Cube", "Bypass Hit Ratio", "Bypass Avg Weight", "Bypass Avg Cube"};
 
 
             String headers[];
@@ -545,7 +545,7 @@ public class PlanningInstructionsTest {
                 cell.setCellValue(headers[i]);
                 if ( i >=2 && i <= 6 )
                 {
-                   cell.setCellStyle(header_highlighted_style);
+                    cell.setCellStyle(header_highlighted_style);
                 }
                 else
                 {
@@ -631,7 +631,7 @@ public class PlanningInstructionsTest {
             empty_row_style.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
             empty_row_style.setFillPattern(CellStyle.SOLID_FOREGROUND);
 
-           // System.out.println("point 3");
+            // System.out.println("point 3");
 
             while (rs.next()) {
                 rowCounter++;
@@ -642,11 +642,11 @@ public class PlanningInstructionsTest {
                 //load_to_mode1 = rs.getString("load_to_mode1");
                 //if ( !load_to_mode1.equals('S'))
                 //{
-                 //   load_to_mode1 = "";
+                //   load_to_mode1 = "";
                 //}
                 load_to_sic1 = rs.getString("load_to_sic1");
                 must_clear_sic = rs.getString("must_clear_sic");
-               // must_clear_shift = rs.getString("must_clear_shift");
+                // must_clear_shift = rs.getString("must_clear_shift");
                 daylane_freight = rs.getString("daylane_freight");
                 if (daylane_freight.equals("Y"))
                 {
@@ -684,29 +684,29 @@ public class PlanningInstructionsTest {
 
 
 
-              //  head_load_hit_ratio = rs.getDouble("head_load_hit_ratio");
-              //  jxl.write.Number head_load_hit_ratio_number = new jxl.write.Number( 12, rowCounter, head_load_hit_ratio, pctFormat);
-              //  sheet.addCell(head_load_hit_ratio_number);
+                //  head_load_hit_ratio = rs.getDouble("head_load_hit_ratio");
+                //  jxl.write.Number head_load_hit_ratio_number = new jxl.write.Number( 12, rowCounter, head_load_hit_ratio, pctFormat);
+                //  sheet.addCell(head_load_hit_ratio_number);
 
-             //   head_load_avg_weight = rs.getDouble("head_load_avg_weight");
-             //   jxl.write.Number head_load_avg_weight_number = new jxl.write.Number( 13, rowCounter, head_load_avg_weight, intFormat);
-             //   sheet.addCell(head_load_avg_weight_number);
+                //   head_load_avg_weight = rs.getDouble("head_load_avg_weight");
+                //   jxl.write.Number head_load_avg_weight_number = new jxl.write.Number( 13, rowCounter, head_load_avg_weight, intFormat);
+                //   sheet.addCell(head_load_avg_weight_number);
 
-             //   head_load_avg_cube = rs.getDouble("head_load_avg_cube");
-             //   jxl.write.Number head_load_avg_cube_number = new jxl.write.Number( 12, rowCounter, head_load_avg_cube, pctFormat);
-             //   sheet.addCell(head_load_avg_cube_number);
+                //   head_load_avg_cube = rs.getDouble("head_load_avg_cube");
+                //   jxl.write.Number head_load_avg_cube_number = new jxl.write.Number( 12, rowCounter, head_load_avg_cube, pctFormat);
+                //   sheet.addCell(head_load_avg_cube_number);
 
-             //   bypass_hit_ratio = rs.getDouble("bypass_hit_ratio");
-             //   jxl.write.Number bypass_hit_ratio_number = new jxl.write.Number( 15, rowCounter, bypass_hit_ratio, pctFormat);
-             //   sheet.addCell(bypass_hit_ratio_number);
+                //   bypass_hit_ratio = rs.getDouble("bypass_hit_ratio");
+                //   jxl.write.Number bypass_hit_ratio_number = new jxl.write.Number( 15, rowCounter, bypass_hit_ratio, pctFormat);
+                //   sheet.addCell(bypass_hit_ratio_number);
 
-             //   bypass_avg_weight = rs.getDouble("bypass_avg_weight");
-             //   jxl.write.Number bypass_avg_weight_number = new jxl.write.Number( 16, rowCounter, bypass_avg_weight, intFormat);
-             //   sheet.addCell(bypass_avg_weight_number);
+                //   bypass_avg_weight = rs.getDouble("bypass_avg_weight");
+                //   jxl.write.Number bypass_avg_weight_number = new jxl.write.Number( 16, rowCounter, bypass_avg_weight, intFormat);
+                //   sheet.addCell(bypass_avg_weight_number);
 
-             //   bypass_avg_cube = rs.getDouble("bypass_avg_cube");
-             //   jxl.write.Number bypass_avg_cube_number = new jxl.write.Number( 13, rowCounter, bypass_avg_cube, pctFormat);
-              //  sheet.addCell(bypass_avg_cube_number);
+                //   bypass_avg_cube = rs.getDouble("bypass_avg_cube");
+                //   jxl.write.Number bypass_avg_cube_number = new jxl.write.Number( 13, rowCounter, bypass_avg_cube, pctFormat);
+                //  sheet.addCell(bypass_avg_cube_number);
 
 
                 if (dest_sic.equals(""))
@@ -726,13 +726,13 @@ public class PlanningInstructionsTest {
 
                                     if (!fac_shift)    //only OTB need to print out avg weight and cube
                                     {
-                                       Cell avg_weight_cell = new_row.createCell(10);
-                                       avg_weight_cell.setCellValue(avg_weight);
-                                       avg_weight_cell.setCellStyle(number_style);
+                                        Cell avg_weight_cell = new_row.createCell(10);
+                                        avg_weight_cell.setCellValue(avg_weight);
+                                        avg_weight_cell.setCellStyle(number_style);
 
-                                       Cell avg_cube_cell = new_row.createCell(11);
-                                       avg_cube_cell.setCellValue(avg_cube);
-                                       avg_cube_cell.setCellStyle(pct_style);
+                                        Cell avg_cube_cell = new_row.createCell(11);
+                                        avg_cube_cell.setCellValue(avg_cube);
+                                        avg_cube_cell.setCellStyle(pct_style);
                                     }
 
 
@@ -851,12 +851,12 @@ public class PlanningInstructionsTest {
             sheet.getPrintSetup().setFitHeight((short)0);
 
             // sheet.setColumnView(3, 12);
-           // sheet.setColumnView(4, 12);
-           // sheet.setColumnView(11, 10);
-           // sheet.setColumnView(14, 10);
-           // sheet.setColumnView(15, 10);
-           // sheet.setColumnView(16, 11);
-           // sheet.setColumnView(17, 11);
+            // sheet.setColumnView(4, 12);
+            // sheet.setColumnView(11, 10);
+            // sheet.setColumnView(14, 10);
+            // sheet.setColumnView(15, 10);
+            // sheet.setColumnView(16, 11);
+            // sheet.setColumnView(17, 11);
 
 
             //System.out.println("point 4");
@@ -869,7 +869,7 @@ public class PlanningInstructionsTest {
             //System.out.println(sql_query2);
             ResultSet rs2 = stmt.executeQuery(sql_query2);
             //System.out.println("point 4.1");
-           // rs2.setFetchSize(10000);
+            // rs2.setFetchSize(10000);
 
             String door_sic;
             int door_sic_counter = 0;
@@ -897,19 +897,19 @@ public class PlanningInstructionsTest {
                 prepared_statement = prdcwfengConn.prepareStatement(insertTableSQL);
                 //System.out.println("point 4.12");
                 do {
-                   door_sic_counter++;
-                   door_sic = rs2.getString("sic");
-                   String sql_updated_cwfeng = "insert into sic_doors_tmp values('" + instruction_date +"', '" + door_sic + "','" + sic + "','" + shift + "');"; // to be updated
-                   //System.out.println(sql_updated_cwfeng + "\n");
-                   prepared_statement.setString(1, instruction_date);
-                   prepared_statement.setString(2, door_sic);
-                   prepared_statement.setString(3, sic);
+                    door_sic_counter++;
+                    door_sic = rs2.getString("sic");
+                    String sql_updated_cwfeng = "insert into sic_doors_tmp values('" + instruction_date +"', '" + door_sic + "','" + sic + "','" + shift + "');"; // to be updated
+                    //System.out.println(sql_updated_cwfeng + "\n");
+                    prepared_statement.setString(1, instruction_date);
+                    prepared_statement.setString(2, door_sic);
+                    prepared_statement.setString(3, sic);
                     prepared_statement.setString(4, shift);
-                   prepared_statement.addBatch();
-                   //stmt_cwfeng.executeUpdate(sql_updated_cwfeng);
-                 }   while (rs2.next());
-                 prepared_statement.executeBatch();
-                 prdcwfengConn.commit();
+                    prepared_statement.addBatch();
+                    //stmt_cwfeng.executeUpdate(sql_updated_cwfeng);
+                }   while (rs2.next());
+                prepared_statement.executeBatch();
+                prdcwfengConn.commit();
             }
             //System.out.println("point 4.2");
             String add_door_sql_query = "select distinct A.door_sic from \n" +
@@ -924,7 +924,7 @@ public class PlanningInstructionsTest {
                     "where A.launch_date = '" + instruction_date + "' and A.orig_sic='" + sic + "' and B.door_sic is null and A.shift = '" + shift + "'\n"  +
                     "order by A.door_sic; ";
 
-             //System.out.println(add_door_sql_query);
+            //System.out.println(add_door_sql_query);
 
             String remove_door_sql_query = "select A.door_sic from (select distinct door_sic from \n" +
                     "sic_doors_tmp where launch_date= '" + previous_instruction_date + "' and orig_sic='" + sic + "' and shift = '" + shift + "' ) as A\n" +
@@ -960,7 +960,7 @@ public class PlanningInstructionsTest {
                 rowCounter++;
                 Row new_row = sheet1.createRow(rowCounter);
                 Cell added_door_cell = new_row.createCell(0);
-               // System.out.println(rowCounter);
+                // System.out.println(rowCounter);
                 added_door = rs.getString("door_sic");
                 added_door_cell.setCellValue(added_door);
                 added_door_cell.setCellStyle(text_style);
@@ -1000,12 +1000,12 @@ public class PlanningInstructionsTest {
 
 
             //String door_planning_file = "O:\\Freight\\FreightFlowPlans\\PLANNING WORKBOOKS\\" + sic + "_door_planning_" + shift_abbreviation + ".xls";
-            String door_planning_file = "\\\\cgoprfp003\\public\\Freight\\FreightFlowPlans\\PLANNING WORKBOOKS\\" + sic + "_door_planning_" + shift_abbreviation + ".xls";
-            //String door_planning_file = "C:\\Projects\\" + sic + "_door_planning_" + shift_abbreviation + ".xls";
+            //String door_planning_file = "\\\\cgoprfp003\\public\\Freight\\FreightFlowPlans\\PLANNING WORKBOOKS\\" + sic + "_door_planning_" + shift_abbreviation + ".xls";
+            String door_planning_file = "C:\\Projects\\" + sic + "_door_planning_" + shift_abbreviation + ".xls";
 
             System.out.println(door_planning_file);
 
-            log.info(door_planning_file);
+            //log.info(door_planning_file);
 
             FileOutputStream fileOut_official = new FileOutputStream(door_planning_file);
 
@@ -1017,14 +1017,14 @@ public class PlanningInstructionsTest {
 
             if(sending_email_ind)
             {
-               //String to_address1 =  "Miguel.Buhay@xpo.com";
-               String to_address1 =  "opspersonnel-" + sic + "@con-way.com";
-               sendJavaMail(sic, door_planning_file, to_address1, shift_abbreviation);
-               //String to_address2 =  "east.jacob@con-way.com";
-               //sendJavaMail(sic, door_planning_file, to_address2);
-               //String to_address3 =  "leathers.michael@con-way.com";
-               //sendJavaMail(sic, door_planning_file, to_address3);
-            //String sql_query2 = "difference between last week and the week before last"
+                String to_address1 =  "Liza.Zamora@xpo.com";
+                //String to_address1 =  "opspersonnel-" + sic + "@con-way.com";
+                sendJavaMail(sic, door_planning_file, to_address1, shift_abbreviation);
+                //String to_address2 =  "east.jacob@con-way.com";
+                //sendJavaMail(sic, door_planning_file, to_address2);
+                //String to_address3 =  "leathers.michael@con-way.com";
+                //sendJavaMail(sic, door_planning_file, to_address3);
+                //String sql_query2 = "difference between last week and the week before last"
             }
             prdwhsevwConn.close();
             prdcwfengConn.close();
@@ -1033,12 +1033,12 @@ public class PlanningInstructionsTest {
         {
             System.out.println
                     ("Error, SQL failed.\n");
-            log.info("Error, SQL failed.");
+            //log.info("Error, SQL failed.");
 
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            log.info("Error, File not found.");
+            //log.info("Error, File not found.");
 
 
         } catch (IOException e) {
@@ -1048,7 +1048,7 @@ public class PlanningInstructionsTest {
         } finally {
             try { prdwhsevwConn.close(); } catch (Exception e) { /* ignored */ }
             try { prdcwfengConn.close(); } catch (Exception e) { /* ignored */ }
-        //    try { conn.close(); } catch (Exception e) { /* ignored */ }
+            //    try { conn.close(); } catch (Exception e) { /* ignored */ }
         }
 
     }
@@ -1057,7 +1057,7 @@ public class PlanningInstructionsTest {
         try
         {
             Class.forName("org.netezza.Driver").newInstance();
-            Connection c = DriverManager.getConnection("jdbc:netezza://npsdwh.con-way.com/PRD_CWFENG", "MIGUEL.BUHAY", "miguel082416");
+            Connection c = DriverManager.getConnection("jdbc:netezza://npsdwh.con-way.com/PRD_CWFENG", "MXBUHAY", "miguel082416");
             c.setAutoCommit(false);
             return c;
         }
@@ -1074,7 +1074,7 @@ public class PlanningInstructionsTest {
         try
         {
             Class.forName("org.netezza.Driver").newInstance();
-            Connection c = DriverManager.getConnection("jdbc:netezza://npsdwh.con-way.com/PRD_WHSEVIEW?allowMultiQuery=true", "MIGUEL.BUHAY", "miguel082416");
+            Connection c = DriverManager.getConnection("jdbc:netezza://npsdwh.con-way.com/PRD_WHSEVIEW?allowMultiQuery=true", "MXBUHAY", "miguel082416");
             c.setAutoCommit(false);
             return c;
         }
