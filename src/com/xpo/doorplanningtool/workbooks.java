@@ -1,4 +1,4 @@
-/**
+package com.xpo.doorplanningtool; /**
  * Created with IntelliJ IDEA.
  * User: zhang.mingming
  * Date: 7/22/13
