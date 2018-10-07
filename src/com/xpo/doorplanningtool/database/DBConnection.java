@@ -4,7 +4,7 @@ import java.sql.*;
 
 public class DBConnection {
 
-    private  Connection connection;
+    private Connection connection;
     private String url;
     private String username;
     private String password;
@@ -40,7 +40,6 @@ public class DBConnection {
         return this.connection;
     }
 
-
     public ResultSet executeQuery(String query) throws SQLException {
         Statement stmt = this.connection.createStatement();
         ResultSet rs = stmt.executeQuery(query);
@@ -51,6 +50,5 @@ public class DBConnection {
         Statement stmt = this.connection.createStatement();
         stmt.executeUpdate(update);
     }
-
 
 }

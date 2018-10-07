@@ -1,5 +1,4 @@
 package com.xpo.doorplanningtool;
-
 import com.xpo.doorplanningtool.database.DBConnection;
 import com.xpo.doorplanningtool.util.DatabaseUtil;
 import com.xpo.doorplanningtool.util.EmailUtil;
@@ -7,22 +6,11 @@ import com.xpo.doorplanningtool.vo.Plan;
 import org.apache.log4j.FileAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import  org.apache.log4j.Layout;
 import org.apache.log4j.PatternLayout;
-import org.apache.poi.hssf.usermodel.HSSFFont;
-import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.util.CellRangeAddress;
 import java.io.*;
-import java.security.KeyStore;
 import java.sql.*;
-import java.util.*;
-import java.util.Date;
-import javax.mail.*;
-import javax.mail.internet.*;
-import javax.activation.*;
 
-
-import org.apache.poi.xssf.usermodel.*;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -35,11 +23,22 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
  * Time: 3:49 PM
  * To change this template use File | Settings | File Templates.
  */
+
 public class PlanningInstructionsTest {
+
+    String to_address1 =  "Liza.Zamora@xpo.com";
+    //String to_address1 =  "opspersonnel-" + sic + "@con-way.com";
+
+    String input_file_path = "\\\\cgoprfp003\\public\\Freight\\FreightFlowPlans\\PLANNING WORKBOOKS\\";
+    String output_file_path = "C:\\Projects\\data\\";
+    //String output_file_name_str1 = "\\\\cgoprfp003\\public\\Freight\\FreightFlowPlans\\PLANNING WORKBOOKS\\";
+    //String output_file_name_str1 = "O:\\Freight\\FreightFlowPlans\\PLANNING WORKBOOKS\\";
+    String door_planning_text = "_door_planning_";
+    String file_extension = ".xls";
+
     //private static final Logger log = Logger.getLogger(PlanningInstructionsTest.class);
     void generateInstructions(Plan plan)
     {
-
         String sic = plan.getSic();
         boolean fac_shift = plan.isFac_shift();
 
@@ -61,7 +60,6 @@ public class PlanningInstructionsTest {
         // creates a custom logger and log messages
         Logger logger = Logger.getLogger(workbooks.class);
 
-
         logger.debug("Started");
 
         DBConnection prdwhsevwConn = null;
@@ -76,20 +74,16 @@ public class PlanningInstructionsTest {
             String shift_abbreviation = "OTB";
             if(plan.isFac_shift())
                 shift_abbreviation = "FAC";
-
-            prdcwfengConn = getConnection_PRD_CWFENG();
+                prdcwfengConn = getConnection_PRD_CWFENG();
 
             if ( plan.isIs_exception_date() )
             {
                 //get the excel file in the o drive for the sic, strip out the second page, add an empty page
-
-                FileInputStream input_document = new FileInputStream(new File("\\\\cgoprfp003\\public\\Freight\\FreightFlowPlans\\PLANNING WORKBOOKS\\" + sic + "_door_planning_" + shift_abbreviation + ".xls"));
-
+                FileInputStream input_document = new FileInputStream(new File(input_file_path + sic + door_planning_text + shift_abbreviation + file_extension));
                 //Access the workbook
                 HSSFWorkbook my_xls_workbook = new HSSFWorkbook(input_document);
                 //Access the worksheet, so that we can update / modify it.
                 HSSFSheet my_worksheet = my_xls_workbook.getSheetAt(1);
-
                 HSSFRow row = null;
                 // Access the cell first to update the value
 
@@ -103,13 +97,11 @@ public class PlanningInstructionsTest {
                 }
 
                 //set cell value at tow 2 column 1.
-
-
                 //Close the InputStream
                 input_document.close();
                 //Open FileOutputStream to write updates
-                String output_file_name = "C:\\Projects\\data\\" + sic + "_door_planning_" + shift_abbreviation + ".xls";
-                //String output_file_name = "\\\\cgoprfp003\\public\\Freight\\FreightFlowPlans\\PLANNING WORKBOOKS\\" + sic + "_door_planning_" + shift_abbreviation + ".xls";
+                String output_file_name = output_file_path + sic + door_planning_text + shift_abbreviation + file_extension;
+
                 FileOutputStream output_file =new FileOutputStream(new File(output_file_name));
                 //write changes
                 my_xls_workbook.write(output_file);
@@ -119,8 +111,6 @@ public class PlanningInstructionsTest {
                 if(plan.isSending_email_ind())
                 {
                     EmailUtil sendEmail = new EmailUtil();
-                    String to_address1 =  "Liza.Zamora@xpo.com";
-                    //String to_address1 =  "opspersonnel-" + sic + "@con-way.com";
                     sendEmail.sendJavaMail(plan.getSic(), output_file_name, to_address1, shift_abbreviation);
                 }
                 return;
@@ -134,13 +124,10 @@ public class PlanningInstructionsTest {
             ResultSet rs = DatabaseUtil.executeQuery1(prdwhsevwConn, plan);
             rs.setFetchSize(10000);
 
-
             String orig_sic;
             String orig_shift;
-
             String load_to_sic1;
             String must_clear_sic;
-
             String daylane_freight;
             String load_to_mode2;
             String load_to_sic2;
@@ -157,7 +144,6 @@ public class PlanningInstructionsTest {
             double bypass_avg_cube;
             double avg_weight;
             double avg_cube;
-
 
             Workbook workbook = new HSSFWorkbook();
 
@@ -182,18 +168,6 @@ public class PlanningInstructionsTest {
             header_highlighted_style.setFont(header_font);
             header_highlighted_style.setAlignment(CellStyle.ALIGN_CENTER);
             //header_highlighted_style.setWrapText(true);
-
-
-
-
-            //header_format.setBorder(jxl.format.Border.ALL, jxl.format.BorderLineStyle.THIN, jxl.format.Colour.BLACK);
-
-            // String headers[] = new String[] {"Sic", "Shift", "Load To Mode1", "1st FAC", "Must Move", "Must Move to Shift", "Load To Mode2", "2nd FAC",  "Load To Mode3", "3rd FAC",
-            //         "Dest Sic", "Head Load", "Bypass", "Head Load Hit Ratio", "Head Load Avg Weight", "Head Load Avg Cube", "Bypass Hit Ratio", "Bypass Avg Weight", "Bypass Avg Cube"};
-
-            // String headers[] = new String[] {"SIC", "Shift", "Load To Mode1", "DAYFRT", "1st FAC", "Must Clear", "Must Clear Shift", "2nd FAC", "3rd FAC",
-            //                  "Dest Sic", "Head Load", "Bypass", "Head Load Hit Ratio", "Head Load Avg Weight", "Head Load Avg Cube", "Bypass Hit Ratio", "Bypass Avg Weight", "Bypass Avg Cube"};
-
 
             String headers[];
             headers = new String[] {"SIC", "Shift", "DAYFRT", "1st FAC", "Must Clear",  "2nd FAC", "3rd FAC",
@@ -311,14 +285,8 @@ public class PlanningInstructionsTest {
                 boolean recommended_door = false;
                 orig_sic = rs.getString("orig_sic");
                 orig_shift = rs.getString("orig_shift");
-                //load_to_mode1 = rs.getString("load_to_mode1");
-                //if ( !load_to_mode1.equals('S'))
-                //{
-                //   load_to_mode1 = "";
-                //}
                 load_to_sic1 = rs.getString("load_to_sic1");
                 must_clear_sic = rs.getString("must_clear_sic");
-                // must_clear_shift = rs.getString("must_clear_shift");
                 daylane_freight = rs.getString("daylane_freight");
                 if (daylane_freight.equals("Y"))
                 {
@@ -354,9 +322,6 @@ public class PlanningInstructionsTest {
                     recommended_door = true;
                 }
 
-
-
-
                 if (dest_sic.equals(""))
                 {
                     if (load_to_sic3.equals("") )
@@ -383,8 +348,6 @@ public class PlanningInstructionsTest {
                                         avg_cube_cell.setCellStyle(pct_style);
                                     }
 
-
-
                                     //insert a gray row
                                     rowCounter++;
                                     Row empty_row = sheet.createRow(rowCounter);
@@ -407,7 +370,6 @@ public class PlanningInstructionsTest {
                                     load_door_cell.setCellValue("X");
                                     load_door_cell.setCellStyle(x_style);
                                 }
-
 
                                 continue;
                             }
@@ -498,35 +460,8 @@ public class PlanningInstructionsTest {
             sheet.getPrintSetup().setFitWidth((short)1);
             sheet.getPrintSetup().setFitHeight((short)0);
 
-            // sheet.setColumnView(3, 12);
-            // sheet.setColumnView(4, 12);
-            // sheet.setColumnView(11, 10);
-            // sheet.setColumnView(14, 10);
-            // sheet.setColumnView(15, 10);
-            // sheet.setColumnView(16, 11);
-            // sheet.setColumnView(17, 11);
-
-
-
             //System.out.println(sql_query2);
             ResultSet rs2 = DatabaseUtil.executeQuerySicDoors(prdwhsevwConn, plan);
-            //System.out.println("point 4.1");
-            // rs2.setFetchSize(10000);
-
-
-
-
-
-
-         /*   if (rs2.last()) {
-                int rowcount = rs2.getRow();
-                System.out.println("rowcount is" + rowcount);
-                rs2.beforeFirst(); // not rs.first() because the rs.next() below will move on, missing the first element
-            }   */
-            //System.out.println("point 4.9");
-            //prdcwfengConn.setAutoCommit(false);
-            //System.out.println("point 4.10");
-
 
             if (!rs2.next() )
             {
@@ -547,9 +482,7 @@ public class PlanningInstructionsTest {
 
             Row header_row = sheet1.createRow(rowCounter);
 
-
             Cell added_door_header = header_row.createCell(0);
-
             added_door_header.setCellValue("Added Doors");
             added_door_header.setCellStyle(header_highlighted_style);
             while (rs.next())
@@ -595,9 +528,7 @@ public class PlanningInstructionsTest {
             sheet1.getPrintSetup().setFitHeight((short)0);
 
 
-            //String door_planning_file = "O:\\Freight\\FreightFlowPlans\\PLANNING WORKBOOKS\\" + sic + "_door_planning_" + shift_abbreviation + ".xls";
-            //String door_planning_file = "\\\\cgoprfp003\\public\\Freight\\FreightFlowPlans\\PLANNING WORKBOOKS\\" + sic + "_door_planning_" + shift_abbreviation + ".xls";
-            String door_planning_file = "C:\\Projects\\" + sic + "_door_planning_" + shift_abbreviation + ".xls";
+            String door_planning_file = output_file_path + sic + door_planning_text + shift_abbreviation + file_extension;
 
             System.out.println(door_planning_file);
 
@@ -612,8 +543,6 @@ public class PlanningInstructionsTest {
             if(plan.isSending_email_ind())
             {
                 EmailUtil sendEmail = new EmailUtil();
-                String to_address1 =  "Liza.Zamora@xpo.com";
-                //String to_address1 =  "opspersonnel-" + sic + "@con-way.com";
                 sendEmail.sendJavaMail(sic, door_planning_file, to_address1, shift_abbreviation);
             }
             prdwhsevwConn.close();
@@ -635,11 +564,12 @@ public class PlanningInstructionsTest {
 
         } finally {
             try { prdwhsevwConn.close(); } catch (Exception e) { /* ignored */ }
-            try { prdcwfengConn.close(); } catch (Exception e) { /* ignored */ }
+            try { prdcwfengConn.close(); } catch    (Exception e) { /* ignored */ }
             //    try { conn.close(); } catch (Exception e) { /* ignored */ }
         }
 
     }
+
     public static DBConnection getConnection_PRD_CWFENG() throws SQLException
     {
         DBConnection connection = new DBConnection("jdbc:netezza://npsdwh.con-way.com/PRD_CWFENG", "MXBUHAY", "miguel082416");

@@ -37,6 +37,7 @@ public class DatabaseUtil {
     public static ResultSet executeQuery1(DBConnection connection, Plan plan) throws SQLException {
         String sql_query1 = "select *  from ffo_planning_tool order by orig_sic, orig_shift, load_to_mode1, load_to_sic1 desc, load_to_shift1 desc, must_clear_sic desc, must_clear_shift desc, daylane_freight desc, load_to_sic2 desc, load_to_shift2 desc, load_to_sic3 desc, load_to_shift3 desc, dest_sic desc;";
         System.out.println(sql_query1);
+
         return connection.executeQuery(sql_query1);
     }
 
@@ -54,14 +55,6 @@ public class DatabaseUtil {
                 "select cldr_dt as date, orig_sic_cd as orig_sic,  fnl_dest_sic_cd as dest_sic, orig_in_wgt as weight_in, orig_in_vol as cube_in, orig_out_wgt as weight_out, orig_out_vol as cube_out from FLO_FLOW_PLAN_SUMMARY_VW "+
                 "where orig_shft_cd = '" + shift + "' and date >= '"+ beginning_date + "' and date <= '" + ending_date + "' \n" +
                 "and orig_sic='" + sic + "' distribute on (orig_sic, dest_sic); \n";
-
-           /* if (fac_shift)
-            {
-                sql_ffo_extract_temp = "create temp table ffo_extracts_temp as\n" +
-                        "select cldr_dt as date, LD_TO_1_SIC_CD as orig_sic,  fnl_dest_sic_cd as dest_sic, orig_in_wgt as weight_in, orig_in_vol as cube_in, orig_out_wgt as weight_out, orig_out_vol as cube_out from FLO_FLOW_PLAN_SUMMARY_VW "+
-                        "where orig_shft_cd = 'OTB' and date >= '"+ beginning_date + "' and date <= '" + ending_date + "' \n" +
-                        "and LD_TO_1_SIC_CD='" + sic + "' distribute on (orig_sic, dest_sic); \n";
-            } */
 
         String sql_updated = sql_ffo_extract_temp +
                 "create temp table current_loc_load_plan as\n" +
@@ -311,16 +304,6 @@ public class DatabaseUtil {
                 "order by orig_sic, orig_shift, load_to_mode1, load_to_sic1 desc, load_to_shift1 desc, must_clear_sic desc, must_clear_shift desc, load_to_sic2 desc, load_to_shift2 desc, load_to_sic3 desc, load_to_shift3 desc, dest_sic desc\n" +
                 ");\n"
                 +
-                   /* " insert into sic_doors as \n" +
-                    "(select \"" + instruction_date + "\" as launch_date, dest_sic as sic, "+ sic + " as orig_sic from ffo_base_plan_od_exclusive where head_load ='X'\n" +
-                    "union\n" +
-                    "select \"" + instruction_date + "\" as launch_date, load_to_sic3 as sic,  "+ sic + " from ffo_base_plan_3rd_fac_combined where head_load ='X'\n" +
-                    "union\n" +
-                    "select \"" + instruction_date + "\" as launch_date, load_to_sic2 as sic, "+ sic + "  from ffo_base_plan_2nd_fac_combined where head_load ='X'\n" +
-                    "union\n" +
-                    "select \"" + instruction_date + "\" as launch_date, must_clear_sic as sic, "+ sic + "   from ffo_base_plan_must_clear_sic_combined where head_load ='X'\n" +
-                    "union\n" +
-                    "select \"" + instruction_date + "\" as launch_date, load_to_sic1 as sic, "+ sic + " from ffo_base_plan_1st_fac_combined where head_load ='X');";    */
                 " create temp table sic_doors as \n" +
                 "(select  dest_sic as sic, bypass from ffo_base_plan_od_exclusive where head_load ='X'\n" +
                 "union\n" +
@@ -346,9 +329,8 @@ public class DatabaseUtil {
     public static void insertSicDoorsTemp(DBConnection connection, Plan plan, ResultSet rs2) throws SQLException {
         Connection conn =connection.getConnection();
         String insertTableSQL =  "insert into sic_doors_tmp (LAUNCH_DATE, DOOR_SIC, ORIG_SIC, SHIFT) values (?, ?, ?, ?)";
-        //System.out.println("point 4.11");
         PreparedStatement prepared_statement = conn.prepareStatement(insertTableSQL);
-        //System.out.println("point 4.12");
+
         String door_sic;
         int door_sic_counter = 0;
 
@@ -356,13 +338,11 @@ public class DatabaseUtil {
             door_sic_counter++;
             door_sic = rs2.getString("sic");
             String sql_updated_cwfeng = "insert into sic_doors_tmp values('" + plan.getInstruction_date() +"', '" + door_sic + "','" + plan.getSic() + "','" + plan.getShift() + "');"; // to be updated
-            //System.out.println(sql_updated_cwfeng + "\n");
             prepared_statement.setString(1, plan.getInstruction_date());
             prepared_statement.setString(2, door_sic);
             prepared_statement.setString(3, plan.getSic());
             prepared_statement.setString(4, plan.getShift());
             prepared_statement.addBatch();
-            //stmt_cwfeng.executeUpdate(sql_updated_cwfeng);
         }   while (rs2.next());
         prepared_statement.executeBatch();
         conn.commit();

@@ -51,10 +51,6 @@ public class EmailUtil {
 
 	public void sendJavaMail(String sic, String filename, String to_address, String shift_abbreviation)
 	{
-		// Recipient's email ID needs to be mentioned.
-		//String to = "opspersonnel-" + sic + "@con-way.com";
-		//String to = "zhang.mingming@con-way.com";
-		// Sender's email ID needs to be mentioned
 		String from = "bisubscriptions@xpo.com";
 
 		// Assuming you are sending email from localhost
