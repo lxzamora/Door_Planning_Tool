@@ -2,11 +2,11 @@ package com.xpo.doorplanningtool.util;
 
 import com.xpo.doorplanningtool.database.DBConnection;
 import com.xpo.doorplanningtool.vo.Plan;
+import com.xpo.doorplanningtool.vo.Threshold;
 
 import java.sql.*;
 
 public class DatabaseUtil {
-
 
     public static ResultSet executeAddDoorQuery(DBConnection connection, Plan plan) throws SQLException {
         String add_door_sql_query = "select distinct A.door_sic from \n" +
@@ -41,7 +41,7 @@ public class DatabaseUtil {
         return connection.executeQuery(sql_query1);
     }
 
-    public static void executeUpdate1(DBConnection connection, Plan plan) throws SQLException {
+    public static void executeUpdate1(DBConnection connection, Plan plan, Threshold threshold) throws SQLException {
 
         String shift = plan.getShift();
         String beginning_date = plan.getBeginning_date();
@@ -50,6 +50,7 @@ public class DatabaseUtil {
         String shift_abbr = plan.getShift_abbr();
         String bypass_frequency = plan.getBypass_frequency();
         String loc_load_plan_shift_cd = plan.getLoc_load_plan_shift_cd();
+        String max_cube_out = threshold.getMax_cube_out();
 
         String sql_ffo_extract_temp = "create temp table ffo_extracts_temp as\n" +
                 "select cldr_dt as date, orig_sic_cd as orig_sic,  fnl_dest_sic_cd as dest_sic, orig_in_wgt as weight_in, orig_in_vol as cube_in, orig_out_wgt as weight_out, orig_out_vol as cube_out from FLO_FLOW_PLAN_SUMMARY_VW "+
@@ -77,7 +78,7 @@ public class DatabaseUtil {
                 "\n" +
                 "\n" +
                 "create  temp table ffo_base_plan_od as\n" +
-                "(select orig_sic, orig_shift, load_to_mode1, load_to_sic1, load_to_shift1, must_clear_sic, must_clear_shift, daylane_freight, load_to_sic2, load_to_shift2, load_to_sic3, load_to_shift3, dest_sic, sum(case when cube_out/1270.0 >=0.4 or weight_out >=22500 then 1 else 0 end) as head_load_hit_days, head_load_hit_days/5.0 as head_load_hit_ratio, case when head_load_hit_days =0 then 0 else sum(case when cube_out/1270.0 >=0.4 or weight_out >=22500 then weight_out else 0 end)/head_load_hit_days end as head_load_avg_weight, case when head_load_hit_days=0 then 0 else sum(case when cube_out/1270.0 >=0.4 or weight_out >=22500 then cube_out/1270.0 else 0 end)/head_load_hit_days end as head_load_avg_cube, sum(case when cube_out/1270.0 >=0.85 or weight_out >=22500 then 1 else 0 end) as bypass_hit_days,  bypass_hit_days/5.0 as bypass_hit_ratio, case when bypass_hit_days = 0 then 0 else sum(case when cube_out/1270.0 >=0.85 or weight_out >=22500 then weight_out else 0 end)/bypass_hit_days end as bypass_avg_weight, case when bypass_hit_days = 0 then 0 else sum(case when cube_out/1270.0 >=0.85 or weight_out >=22500 then cube_out/1270.0 else 0 end)/bypass_hit_days end as bypass_avg_cube, case when head_load_hit_ratio >= 0.6 then 'X' else '' end as head_load, case when bypass_hit_ratio >=" + bypass_frequency + " then 'X' else '' end as bypass, sum(cube_out/1270.0)/5.0 as avg_cube, sum(weight_out)/5.0 as avg_weight  from ffo_extracts_otb \n" +
+                "(select orig_sic, orig_shift, load_to_mode1, load_to_sic1, load_to_shift1, must_clear_sic, must_clear_shift, daylane_freight, load_to_sic2, load_to_shift2, load_to_sic3, load_to_shift3, dest_sic, sum(case when cube_out/"+max_cube_out+">=0.4 or weight_out >=22500 then 1 else 0 end) as head_load_hit_days, head_load_hit_days/5.0 as head_load_hit_ratio, case when head_load_hit_days =0 then 0 else sum(case when cube_out/"+max_cube_out+" >=0.4 or weight_out >=22500 then weight_out else 0 end)/head_load_hit_days end as head_load_avg_weight, case when head_load_hit_days=0 then 0 else sum(case when cube_out/"+max_cube_out+" >=0.4 or weight_out >=22500 then cube_out/"+max_cube_out+" else 0 end)/head_load_hit_days end as head_load_avg_cube, sum(case when cube_out/"+max_cube_out+" >=0.85 or weight_out >=22500 then 1 else 0 end) as bypass_hit_days,  bypass_hit_days/5.0 as bypass_hit_ratio, case when bypass_hit_days = 0 then 0 else sum(case when cube_out/"+max_cube_out+" >=0.85 or weight_out >=22500 then weight_out else 0 end)/bypass_hit_days end as bypass_avg_weight, case when bypass_hit_days = 0 then 0 else sum(case when cube_out/"+max_cube_out+" >=0.85 or weight_out >=22500 then cube_out/"+max_cube_out+" else 0 end)/bypass_hit_days end as bypass_avg_cube, case when head_load_hit_ratio >= 0.6 then 'X' else '' end as head_load, case when bypass_hit_ratio >=" + bypass_frequency + " then 'X' else '' end as bypass, sum(cube_out/"+max_cube_out+")/5.0 as avg_cube, sum(weight_out)/5.0 as avg_weight  from ffo_extracts_otb \n" +
                 "group by 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13);\n" +
                 "\n" +
                 "create temp table exclusive_lanes as\n" +
@@ -138,7 +139,7 @@ public class DatabaseUtil {
                 "              load_to_sic3,\n" +
                 "              load_to_shift3,\n" +
                 "              sum(weight_out) as total_weight_out,\n" +
-                "              sum(cube_out)/1270.0 as total_cube_out,\n" +
+                "              sum(cube_out)/"+max_cube_out+" as total_cube_out,\n" +
                 "              case when total_cube_out>=0.4 or total_weight_out >=22500 then 1 else 0 end as mark_head_load,\n" +
                 "              case when total_cube_out>=0.85 or total_weight_out >=22500 then 1 else 0 end as mark_bypass   \n" +
                 "       from ffo_extracts_otb\n" +
@@ -187,7 +188,7 @@ public class DatabaseUtil {
                 "              load_to_sic2,\n" +
                 "              load_to_shift2,\n" +
                 "              sum(weight_out) as total_weight_out,\n" +
-                "              sum(cube_out)/1270.0 as total_cube_out,\n" +
+                "              sum(cube_out)/"+max_cube_out+" as total_cube_out,\n" +
                 "              case when total_cube_out>=0.4 or total_weight_out >=22500 then 1 else 0 end as mark_head_load,\n" +
                 "              case when total_cube_out>=0.85 or total_weight_out >=22500 then 1 else 0 end as mark_bypass   \n" +
                 "       from ffo_extracts_otb\n" +
@@ -235,7 +236,7 @@ public class DatabaseUtil {
                 "              must_clear_shift,\n" +
                 "              daylane_freight,\n" +
                 "              sum(weight_out) as total_weight_out,\n" +
-                "              sum(cube_out)/1270.0 as total_cube_out,\n" +
+                "              sum(cube_out)/"+max_cube_out+" as total_cube_out,\n" +
                 "              case when total_cube_out>=0.4 or total_weight_out >=22500 then 1 else 0 end as mark_head_load,\n" +
                 "              case when total_cube_out>=0.85 or total_weight_out >=22500 then 1 else 0 end as mark_bypass   \n" +
                 "       from ffo_extracts_otb\n" +
@@ -278,7 +279,7 @@ public class DatabaseUtil {
                 "              load_to_sic1,\n" +
                 "              load_to_shift1,\n" +
                 "              sum(weight_out) as total_weight_out,\n" +
-                "              sum(cube_out)/1270.0 as total_cube_out,\n" +
+                "              sum(cube_out)/"+max_cube_out+" as total_cube_out,\n" +
                 "              case when total_cube_out>=0.4 or total_weight_out >=22500 then 1 else 0 end as mark_head_load,\n" +
                 "              case when total_cube_out>=0.85 or total_weight_out >=22500 then 1 else 0 end as mark_bypass   \n" +
                 "       from ffo_extracts_otb\n" +

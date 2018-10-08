@@ -6,14 +6,13 @@ package com.xpo.doorplanningtool; /**
  * To change this template use File | Settings | File Templates.
  */
 import com.xpo.doorplanningtool.vo.Plan;
+import com.xpo.doorplanningtool.vo.Threshold;
+
 import java.io.*;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.GregorianCalendar;
-import java.util.Calendar;
-import java.util.Date;
+import java.util.*;
 
 public class workbooks {
 
@@ -28,6 +27,7 @@ public class workbooks {
         Calendar instruction_date = new GregorianCalendar();
         Calendar prev_instruction_date = new GregorianCalendar();
         String ending_date_str, beginning_date_str, instruction_date_str, prev_instruction_date_str;
+        String max_cube_out, max_weight_out, bypass_threshold, headload_threshold;
 
 
         boolean ending_date_supplied = false;
@@ -42,6 +42,34 @@ public class workbooks {
         //PlanningInstructions planningInstructions = new PlanningInstructions();
         PlanningInstructionsTest planningInstructionsTest = new PlanningInstructionsTest();
 
+        Properties prop = new Properties();
+        Threshold threshold = new Threshold();
+
+        InputStream input = null;
+
+        try {
+
+            input = new FileInputStream("\\\\cgoprfp003\\Public\\Freight\\FreightFlowPlans\\PLANNING WORKBOOKS\\Door Planning Tool\\config.properties");
+            // load a properties file
+            prop.load(input);
+            // get the property value
+            System.out.println("max_cube_out is "+prop.getProperty("max_cube_out"));
+            threshold.setMax_cube_out(prop.getProperty("max_cube_out"));
+            threshold.setMax_weight_out(prop.getProperty("max_weight_out"));
+            threshold.setBypass_threshold(prop.getProperty("bypass_threshold"));
+            threshold.setHeadload_threshold(prop.getProperty("headload_threshold"));
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } finally {
+            if (input != null) {
+                try {
+                    input.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
 
         for ( int i = 0; i < length; i ++ )
         {
@@ -186,7 +214,7 @@ public class workbooks {
         System.out.println("ending date is " + ending_date_str + "\n");
         System.out.println("Instruction date is " + instruction_date_str + "\n");
 
-          ArrayList<String> sicArray = new ArrayList<String>();
+        ArrayList<String> sicArray = new ArrayList<String>();
         ArrayList<String> exceptionDateArray = new ArrayList<String>();
 
           try {
@@ -254,7 +282,7 @@ public class workbooks {
                if (report_opportunity)
                    rehandleOpportunity.calculateOpportunity(sic, beginning_date_str, ending_date_str);
                else if (planning_instructions)
-                   planningInstructionsTest.generateInstructions(new Plan(sic, beginning_date_str, ending_date_str, instruction_date_str, prev_instruction_date_str, sending_email, fac_shift, is_exception_date));
+                   planningInstructionsTest.generateInstructions(new Plan(sic, beginning_date_str, ending_date_str, instruction_date_str, prev_instruction_date_str, sending_email, fac_shift, is_exception_date), threshold);
 
            }
 

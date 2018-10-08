@@ -4,6 +4,7 @@ import com.xpo.doorplanningtool.database.DBConnection;
 import com.xpo.doorplanningtool.util.DatabaseUtil;
 import com.xpo.doorplanningtool.util.EmailUtil;
 import com.xpo.doorplanningtool.vo.Plan;
+import com.xpo.doorplanningtool.vo.Threshold;
 import org.apache.log4j.FileAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -11,6 +12,7 @@ import org.apache.log4j.PatternLayout;
 import org.apache.poi.ss.util.CellRangeAddress;
 import java.io.*;
 import java.sql.*;
+import java.util.Properties;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -32,7 +34,7 @@ public class PlanningInstructionsTest {
     String file_extension = ".xls";
 
     //private static final Logger log = Logger.getLogger(PlanningInstructionsTest.class);
-    void generateInstructions(Plan plan) {
+    void generateInstructions(Plan plan, Threshold threshold) {
         String sic = plan.getSic();
         boolean fac_shift = plan.isFac_shift();
 
@@ -110,7 +112,7 @@ public class PlanningInstructionsTest {
 
             prdwhsevwConn = getConnection_PRD_WHSEVIEW();
 
-            DatabaseUtil.executeUpdate1(prdwhsevwConn, plan);
+            DatabaseUtil.executeUpdate1(prdwhsevwConn, plan, threshold);
             ResultSet rs = DatabaseUtil.executeQuery1(prdwhsevwConn, plan);
             rs.setFetchSize(10000);
 
