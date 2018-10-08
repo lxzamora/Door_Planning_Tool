@@ -6,7 +6,6 @@ package com.xpo.doorplanningtool; /**
  * To change this template use File | Settings | File Templates.
  */
 import com.xpo.doorplanningtool.vo.Plan;
-
 import java.io.*;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -14,23 +13,13 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.Calendar;
-
-
-//import org.junit.BeforeClass;
-
-
-
 import java.util.Date;
 
 public class workbooks {
 
-
-
-
     //add appender to any Logger (here is root)
 
     public static void main(String[] args) {
-
 
         int length = args.length;
         Calendar current_date = new GregorianCalendar();

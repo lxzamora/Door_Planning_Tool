@@ -13,12 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-/**
- * Utility class for email functionality
- * 
- * @author mku
- *
- */
 public class EmailUtil {
 
 	private static Logger logger = Logger.getRootLogger();
@@ -51,11 +45,11 @@ public class EmailUtil {
 
 	public void sendJavaMail(String sic, String filename, String to_address, String shift_abbreviation)
 	{
-		String from = "bisubscriptions@xpo.com";
+		String from = EmailConstants.SYSTEM_EMAIL.getValue();
 
 		// Assuming you are sending email from localhost
 		//String host = "CGOPRCL001.conway.prod.con-way.com";
-		String host ="mailhost.con-way.com";
+		String host = EmailConstants.SYSTEM_EMAIL_HOST.getValue();
 		// Get system properties
 		Properties properties = System.getProperties();
 
@@ -77,13 +71,13 @@ public class EmailUtil {
 					new InternetAddress(to_address));
 
 			// Set Subject: header field
-			message.setSubject("Door Planning Tool" + shift_abbreviation);
+			message.setSubject("Door Planning Tool " + shift_abbreviation);
 
 			// Create the message part
 			BodyPart messageBodyPart = new MimeBodyPart();
 
 			// Fill the message
-			messageBodyPart.setText("The door planning tool is also available at O:\\Freight\\FreightFlowPlans\\PLANNING WORKBOOKS\n");
+			messageBodyPart.setText(EmailConstants.SYSTEM_EMAIL_MESSAGE_BODY.getValue());
 
 			// Create a multipar message
 			Multipart multipart = new MimeMultipart();
@@ -106,6 +100,7 @@ public class EmailUtil {
 			// Send message
 			Transport.send(message);
 			System.out.println("Sent message successfully....");
+
 		}catch (MessagingException mex) {
 			mex.printStackTrace();
 		}

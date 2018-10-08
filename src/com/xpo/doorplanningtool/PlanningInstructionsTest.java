@@ -16,17 +16,9 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 
-/**
- * Created with IntelliJ IDEA.
- * User: zhang.mingming
- * Date: 8/13/13
- * Time: 3:49 PM
- * To change this template use File | Settings | File Templates.
- */
-
 public class PlanningInstructionsTest {
 
-    String to_address1 =  "Liza.Zamora@xpo.com";
+    String to_address1 = "Liza.Zamora@xpo.com";
     //String to_address1 =  "opspersonnel-" + sic + "@con-way.com";
 
     String input_file_path = "\\\\cgoprfp003\\public\\Freight\\FreightFlowPlans\\PLANNING WORKBOOKS\\";
@@ -37,8 +29,7 @@ public class PlanningInstructionsTest {
     String file_extension = ".xls";
 
     //private static final Logger log = Logger.getLogger(PlanningInstructionsTest.class);
-    void generateInstructions(Plan plan)
-    {
+    void generateInstructions(Plan plan) {
         String sic = plan.getSic();
         boolean fac_shift = plan.isFac_shift();
 
@@ -66,18 +57,16 @@ public class PlanningInstructionsTest {
         DBConnection prdcwfengConn = null;
         System.out.println(sic);
 
-        int rowCounter=0;
+        int rowCounter = 0;
         int scheduleCounter = 0;
 
-        try
-        {
+        try {
             String shift_abbreviation = "OTB";
-            if(plan.isFac_shift())
+            if (plan.isFac_shift())
                 shift_abbreviation = "FAC";
-                prdcwfengConn = getConnection_PRD_CWFENG();
+            prdcwfengConn = getConnection_PRD_CWFENG();
 
-            if ( plan.isIs_exception_date() )
-            {
+            if (plan.isIs_exception_date()) {
                 //get the excel file in the o drive for the sic, strip out the second page, add an empty page
                 FileInputStream input_document = new FileInputStream(new File(input_file_path + sic + door_planning_text + shift_abbreviation + file_extension));
                 //Access the workbook
@@ -87,12 +76,11 @@ public class PlanningInstructionsTest {
                 HSSFRow row = null;
                 // Access the cell first to update the value
 
-                for ( int nrow = 1; nrow < 150; nrow++ )
-                {
-                    row= my_worksheet.getRow(nrow);
+                for (int nrow = 1; nrow < 150; nrow++) {
+                    row = my_worksheet.getRow(nrow);
 
-//The below method removes only cell values not row.
-                    if (! (row == null) )
+                //The below method removes only cell values not row.
+                    if (!(row == null))
                         my_worksheet.removeRow(row);
                 }
 
@@ -102,14 +90,13 @@ public class PlanningInstructionsTest {
                 //Open FileOutputStream to write updates
                 String output_file_name = output_file_path + sic + door_planning_text + shift_abbreviation + file_extension;
 
-                FileOutputStream output_file =new FileOutputStream(new File(output_file_name));
+                FileOutputStream output_file = new FileOutputStream(new File(output_file_name));
                 //write changes
                 my_xls_workbook.write(output_file);
                 //close the stream
                 output_file.close();
 
-                if(plan.isSending_email_ind())
-                {
+                if (plan.isSending_email_ind()) {
                     EmailUtil sendEmail = new EmailUtil();
                     sendEmail.sendJavaMail(plan.getSic(), output_file_name, to_address1, shift_abbreviation);
                 }
@@ -154,7 +141,7 @@ public class PlanningInstructionsTest {
             //the header
             Font header_font = workbook.createFont();
             header_font.setFontName("ARIAL");
-            header_font.setFontHeightInPoints((short)13);
+            header_font.setFontHeightInPoints((short) 13);
             header_font.setBoldweight(Font.BOLDWEIGHT_BOLD);
 
             CellStyle header_style = workbook.createCellStyle();
@@ -170,12 +157,11 @@ public class PlanningInstructionsTest {
             //header_highlighted_style.setWrapText(true);
 
             String headers[];
-            headers = new String[] {"SIC", "Shift", "DAYFRT", "1st FAC", "Must Clear",  "2nd FAC", "3rd FAC",
+            headers = new String[]{"SIC", "Shift", "DAYFRT", "1st FAC", "Must Clear", "2nd FAC", "3rd FAC",
                     "Dest Sic", "Head Load", "Bypass", "AVG WGT", "AVG CUBE"};
 
-            if (fac_shift)
-            {
-                headers = new String[] {"SIC", "Shift", "DAYFRT", "1st FAC", "Must Clear",  "2nd FAC", "3rd FAC",
+            if (fac_shift) {
+                headers = new String[]{"SIC", "Shift", "DAYFRT", "1st FAC", "Must Clear", "2nd FAC", "3rd FAC",
                         "Dest Sic", "Load Door", "Bypass"};
             }
 
@@ -185,16 +171,12 @@ public class PlanningInstructionsTest {
             // Create a cell and put a value in it.
 
 
-            for( int i = 0; i < headers.length; i++)
-            {
+            for (int i = 0; i < headers.length; i++) {
                 Cell cell = row.createCell(i);
                 cell.setCellValue(headers[i]);
-                if ( i >=2 && i <= 6 )
-                {
+                if (i >= 2 && i <= 6) {
                     cell.setCellStyle(header_highlighted_style);
-                }
-                else
-                {
+                } else {
                     cell.setCellStyle(header_style);
                 }
 
@@ -204,12 +186,12 @@ public class PlanningInstructionsTest {
             //general label content format
             Font text_font = workbook.createFont();
             text_font.setFontName("ARIAL");
-            text_font.setFontHeightInPoints((short)10);
+            text_font.setFontHeightInPoints((short) 10);
 
             Font bold_font = workbook.createFont();
             bold_font.setFontName("ARIAL");
             bold_font.setBoldweight(Font.BOLDWEIGHT_BOLD);
-            bold_font.setFontHeightInPoints((short)10);
+            bold_font.setFontHeightInPoints((short) 10);
 
             CellStyle text_style = workbook.createCellStyle();
             text_style.setFont(text_font);
@@ -288,12 +270,9 @@ public class PlanningInstructionsTest {
                 load_to_sic1 = rs.getString("load_to_sic1");
                 must_clear_sic = rs.getString("must_clear_sic");
                 daylane_freight = rs.getString("daylane_freight");
-                if (daylane_freight.equals("Y"))
-                {
+                if (daylane_freight.equals("Y")) {
                     daylane_freight = "D";
-                }
-                else
-                {
+                } else {
                     daylane_freight = "";
                 }
 
@@ -305,8 +284,7 @@ public class PlanningInstructionsTest {
                 avg_weight = rs.getDouble("avg_weight");
                 avg_cube = rs.getDouble("avg_cube");
 
-                if (head_load.equals("X") && (!fac_shift))
-                {
+                if (head_load.equals("X") && (!fac_shift)) {
                     Cell cell = new_row.createCell(8);
                     cell.setCellValue(head_load);
                     cell.setCellStyle(x_style);
@@ -314,28 +292,22 @@ public class PlanningInstructionsTest {
                 }
 
 
-                if (bypass.equals("X"))
-                {
+                if (bypass.equals("X")) {
                     Cell cell = new_row.createCell(9);
                     cell.setCellValue(head_load);
                     cell.setCellStyle(x_style);
                     recommended_door = true;
                 }
 
-                if (dest_sic.equals(""))
-                {
-                    if (load_to_sic3.equals("") )
-                    {
-                        if ( load_to_sic2.equals(""))
-                        {
-                            if ( must_clear_sic.equals(""))
-                            {
-                                if (!load_to_sic1.equals(""))
-                                {
+                if (dest_sic.equals("")) {
+                    if (load_to_sic3.equals("")) {
+                        if (load_to_sic2.equals("")) {
+                            if (must_clear_sic.equals("")) {
+                                if (!load_to_sic1.equals("")) {
                                     load_to_sic1 = load_to_sic1 + " Total";
                                     Cell cell = new_row.createCell(3);
                                     cell.setCellValue(load_to_sic1);
-                                    cell.setCellStyle(recommended_door?callout_style:first_FAC_style);
+                                    cell.setCellStyle(recommended_door ? callout_style : first_FAC_style);
 
                                     if (!fac_shift)    //only OTB need to print out avg weight and cube
                                     {
@@ -355,17 +327,14 @@ public class PlanningInstructionsTest {
                                     empty_row.setRowStyle(empty_row_style);
                                     continue;
                                 }
-                            }
-                            else
-                            {
+                            } else {
                                 //print move to sic 1 and total
                                 must_clear_sic = must_clear_sic + " Total";
                                 Cell cell = new_row.createCell(4);
                                 cell.setCellValue(must_clear_sic);
-                                cell.setCellStyle(recommended_door?callout_style:must_clear_style);
+                                cell.setCellStyle(recommended_door ? callout_style : must_clear_style);
 
-                                if (fac_shift && !daylane_freight.equals("D"))
-                                {
+                                if (fac_shift && !daylane_freight.equals("D")) {
                                     Cell load_door_cell = new_row.createCell(8);
                                     load_door_cell.setCellValue("X");
                                     load_door_cell.setCellStyle(x_style);
@@ -373,17 +342,14 @@ public class PlanningInstructionsTest {
 
                                 continue;
                             }
-                        }
-                        else
-                        {
+                        } else {
                             //print load to sic 2 and total
                             load_to_sic2 = load_to_sic2 + " Total";
                             Cell cell = new_row.createCell(5);
                             cell.setCellValue(load_to_sic2);
-                            cell.setCellStyle(recommended_door?callout_style:second_FAC_style);
+                            cell.setCellStyle(recommended_door ? callout_style : second_FAC_style);
 
-                            if (fac_shift && daylane_freight.equals("D"))
-                            {
+                            if (fac_shift && daylane_freight.equals("D")) {
                                 Cell load_door_cell = new_row.createCell(8);
                                 load_door_cell.setCellValue("X");
                                 load_door_cell.setCellStyle(x_style);
@@ -391,14 +357,12 @@ public class PlanningInstructionsTest {
 
                             continue;
                         }
-                    }
-                    else
-                    {
+                    } else {
                         //print load to sic 3 and total
                         load_to_sic3 = load_to_sic3 + " Total";
                         Cell cell = new_row.createCell(6);
                         cell.setCellValue(load_to_sic3);
-                        cell.setCellStyle(recommended_door?callout_style:third_FAC_style);
+                        cell.setCellStyle(recommended_door ? callout_style : third_FAC_style);
 
                         continue;
                     }
@@ -437,7 +401,7 @@ public class PlanningInstructionsTest {
 
                 Cell dest_sic_cell = new_row.createCell(7);
                 dest_sic_cell.setCellValue(dest_sic);
-                dest_sic_cell.setCellStyle(recommended_door?callout_style:dest_style);
+                dest_sic_cell.setCellStyle(recommended_door ? callout_style : dest_style);
 
             }
             rowCounter--;
@@ -452,23 +416,20 @@ public class PlanningInstructionsTest {
 
             sheet.createFreezePane(0, 1, 0, 1);
             //sheet.setAutoFilter(new CellRangeAddress.valueOf("C5:F200"));
-            sheet.setAutoFilter(new CellRangeAddress(0, rowCounter,0, 9));
+            sheet.setAutoFilter(new CellRangeAddress(0, rowCounter, 0, 9));
 
             sheet.getPrintSetup().setLandscape(true);
             sheet.setAutobreaks(true);
             sheet.setFitToPage(true);
-            sheet.getPrintSetup().setFitWidth((short)1);
-            sheet.getPrintSetup().setFitHeight((short)0);
+            sheet.getPrintSetup().setFitWidth((short) 1);
+            sheet.getPrintSetup().setFitHeight((short) 0);
 
             //System.out.println(sql_query2);
             ResultSet rs2 = DatabaseUtil.executeQuerySicDoors(prdwhsevwConn, plan);
 
-            if (!rs2.next() )
-            {
+            if (!rs2.next()) {
                 System.out.println("no data");
-            }
-            else
-            {
+            } else {
                 DatabaseUtil.insertSicDoorsTemp(prdcwfengConn, plan, rs2);
             }
 
@@ -485,8 +446,7 @@ public class PlanningInstructionsTest {
             Cell added_door_header = header_row.createCell(0);
             added_door_header.setCellValue("Added Doors");
             added_door_header.setCellStyle(header_highlighted_style);
-            while (rs.next())
-            {
+            while (rs.next()) {
                 rowCounter++;
                 Row new_row = sheet1.createRow(rowCounter);
                 Cell added_door_cell = new_row.createCell(0);
@@ -495,7 +455,6 @@ public class PlanningInstructionsTest {
                 added_door_cell.setCellStyle(text_style);
 
             }
-
 
             rowCounter += 2;
             Row removed_header_row = sheet1.createRow(rowCounter);
@@ -509,23 +468,20 @@ public class PlanningInstructionsTest {
 
             rs.setFetchSize(1000);
             //System.out.println("point 6");
-            while (rs.next())
-            {
+            while (rs.next()) {
                 rowCounter++;
                 Row new_row = sheet1.createRow(rowCounter);
                 Cell removed_door_cell = new_row.createCell(0);
                 removed_door = rs.getString("door_sic");
                 removed_door_cell.setCellValue(removed_door);
                 removed_door_cell.setCellStyle(text_style);
-
-
             }
 
             sheet1.autoSizeColumn(0);
             sheet1.getPrintSetup().setLandscape(true);
             sheet1.setFitToPage(true);
-            sheet1.getPrintSetup().setFitWidth((short)1);
-            sheet1.getPrintSetup().setFitHeight((short)0);
+            sheet1.getPrintSetup().setFitWidth((short) 1);
+            sheet1.getPrintSetup().setFitHeight((short) 0);
 
 
             String door_planning_file = output_file_path + sic + door_planning_text + shift_abbreviation + file_extension;
@@ -540,16 +496,13 @@ public class PlanningInstructionsTest {
 
             fileOut_official.close();
 
-            if(plan.isSending_email_ind())
-            {
+            if (plan.isSending_email_ind()) {
                 EmailUtil sendEmail = new EmailUtil();
                 sendEmail.sendJavaMail(sic, door_planning_file, to_address1, shift_abbreviation);
             }
             prdwhsevwConn.close();
             prdcwfengConn.close();
-        }
-        catch (SQLException e)
-        {
+        } catch (SQLException e) {
             System.out.println
                     ("Error, SQL failed.\n");
 
@@ -563,27 +516,29 @@ public class PlanningInstructionsTest {
 
 
         } finally {
-            try { prdwhsevwConn.close(); } catch (Exception e) { /* ignored */ }
-            try { prdcwfengConn.close(); } catch    (Exception e) { /* ignored */ }
+            try {
+                prdwhsevwConn.close();
+            } catch (Exception e) { /* ignored */ }
+            try {
+                prdcwfengConn.close();
+            } catch (Exception e) { /* ignored */ }
             //    try { conn.close(); } catch (Exception e) { /* ignored */ }
         }
 
     }
 
-    public static DBConnection getConnection_PRD_CWFENG() throws SQLException
-    {
-        DBConnection connection = new DBConnection("jdbc:netezza://npsdwh.con-way.com/PRD_CWFENG", "MXBUHAY", "miguel082416");
+    public static DBConnection getConnection_PRD_CWFENG() throws SQLException {
+        DBConnection connection = new DBConnection("jdbc:netezza://npsdwh.con-way.com/PRD_CWFENG", "LXZAMORA", "liza_082416");
         connection.createConnection();
         return connection;
 
     }
-    public static DBConnection getConnection_PRD_WHSEVIEW() throws SQLException
-    {
-        DBConnection connection = new DBConnection("jdbc:netezza://npsdwh.con-way.com/PRD_WHSEVIEW?allowMultiQuery=true", "MXBUHAY", "miguel082416");
+
+    public static DBConnection getConnection_PRD_WHSEVIEW() throws SQLException {
+        DBConnection connection = new DBConnection("jdbc:netezza://npsdwh.con-way.com/PRD_WHSEVIEW?allowMultiQuery=true", "LXZAMORA", "liza_082416");
         connection.createConnection();
         return connection;
     }
-
 
 
 }
