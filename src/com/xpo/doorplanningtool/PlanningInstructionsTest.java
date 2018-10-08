@@ -341,7 +341,7 @@ public class PlanningInstructionsTest {
                     daylane_freight_cell.setCellStyle(text_style);
 
                     Cell load_to_sic1_cell = sheet2_new_row.createCell(3);
-                    load_to_sic1_cell.setCellValue(firstFAC);
+                    load_to_sic1_cell.setCellValue(firstFAC.trim());
                     load_to_sic1_cell.setCellStyle(text_style);
 
                     Cell must_clear_sic_cell = sheet2_new_row.createCell(4);
@@ -383,7 +383,7 @@ public class PlanningInstructionsTest {
                     daylane_freight_cell.setCellStyle(text_style);
 
                     Cell load_to_sic1_cell = sheet2_new_row.createCell(3);
-                    load_to_sic1_cell.setCellValue(firstFAC);
+                    load_to_sic1_cell.setCellValue(firstFAC.trim());
                     load_to_sic1_cell.setCellStyle(text_style);
 
                     Cell must_clear_sic_cell = sheet2_new_row.createCell(4);
