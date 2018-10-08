@@ -1,4 +1,5 @@
 package com.xpo.doorplanningtool;
+
 import com.xpo.doorplanningtool.cnst.QueryConstants;
 import com.xpo.doorplanningtool.database.DBConnection;
 import com.xpo.doorplanningtool.util.DatabaseUtil;
@@ -9,17 +10,15 @@ import org.apache.log4j.FileAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
-import org.apache.poi.ss.util.CellRangeAddress;
-import java.io.*;
-import java.sql.*;
-import java.util.Properties;
-
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddress;
 
-import javax.management.Query;
+import java.io.*;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class PlanningInstructionsTest {
 

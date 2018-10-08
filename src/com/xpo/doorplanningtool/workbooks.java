@@ -54,6 +54,9 @@ public class workbooks {
             prop.load(input);
             // get the property value
             System.out.println("max_cube_out is "+prop.getProperty("max_cube_out"));
+            System.out.println("max_weight_out is "+prop.getProperty("max_weight_out"));
+            System.out.println("bypass_threshold is "+prop.getProperty("bypass_threshold"));
+            System.out.println("headload_threshold is "+prop.getProperty("headload_threshold"));
             threshold.setMax_cube_out(prop.getProperty("max_cube_out"));
             threshold.setMax_weight_out(prop.getProperty("max_weight_out"));
             threshold.setBypass_threshold(prop.getProperty("bypass_threshold"));
