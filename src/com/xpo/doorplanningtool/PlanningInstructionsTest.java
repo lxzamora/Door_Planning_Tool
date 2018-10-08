@@ -162,7 +162,7 @@ public class PlanningInstructionsTest {
 
             String headers[];
             headers = new String[]{"SIC", "Shift", "DAYFRT", "1st FAC", "Must Clear", "2nd FAC", "3rd FAC",
-                    "Dest Sic", "Head Load", "Bypass", "AVG WGT", "AVG CUBE"};
+                    "Dest Sic", "Bypass", "AVG WGT", "AVG CUBE"};
 
             if (fac_shift) {
                 headers = new String[]{"SIC", "Shift", "DAYFRT", "1st FAC", "Must Clear", "2nd FAC", "3rd FAC",
@@ -289,6 +289,13 @@ public class PlanningInstructionsTest {
                 avg_cube = rs.getDouble("avg_cube");
 
                 if (head_load.equals("X") && (!fac_shift)) {
+                    //Cell cell = new_row.createCell(8);
+                    //cell.setCellValue(head_load);
+                    //cell.setCellStyle(x_style);
+                    recommended_door = true;
+                }
+
+                if (bypass.equals("X") && (!fac_shift)) {
                     Cell cell = new_row.createCell(8);
                     cell.setCellValue(head_load);
                     cell.setCellStyle(x_style);
@@ -296,7 +303,7 @@ public class PlanningInstructionsTest {
                 }
 
 
-                if (bypass.equals("X")) {
+                if (bypass.equals("X") && fac_shift) {
                     Cell cell = new_row.createCell(9);
                     cell.setCellValue(head_load);
                     cell.setCellStyle(x_style);
@@ -315,11 +322,16 @@ public class PlanningInstructionsTest {
 
                                     if (!fac_shift)    //only OTB need to print out avg weight and cube
                                     {
-                                        Cell avg_weight_cell = new_row.createCell(10);
+                                        // overrides bypass logic and add bypass indicator for all 1st FAC total
+                                        Cell forced_bypass_cell = new_row.createCell(8);
+                                        forced_bypass_cell.setCellValue("X");
+                                        forced_bypass_cell.setCellStyle(x_style);
+
+                                        Cell avg_weight_cell = new_row.createCell(9);
                                         avg_weight_cell.setCellValue(avg_weight);
                                         avg_weight_cell.setCellStyle(number_style);
 
-                                        Cell avg_cube_cell = new_row.createCell(11);
+                                        Cell avg_cube_cell = new_row.createCell(10);
                                         avg_cube_cell.setCellValue(avg_cube);
                                         avg_cube_cell.setCellStyle(pct_style);
                                     }
@@ -327,7 +339,6 @@ public class PlanningInstructionsTest {
                                     //insert a gray row
                                     rowCounter++;
                                     Row empty_row = sheet.createRow(rowCounter);
-
                                     empty_row.setRowStyle(empty_row_style);
                                     continue;
                                 }
