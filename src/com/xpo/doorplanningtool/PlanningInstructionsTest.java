@@ -1,4 +1,5 @@
 package com.xpo.doorplanningtool;
+import com.xpo.doorplanningtool.cnst.QueryConstants;
 import com.xpo.doorplanningtool.database.DBConnection;
 import com.xpo.doorplanningtool.util.DatabaseUtil;
 import com.xpo.doorplanningtool.util.EmailUtil;
@@ -15,6 +16,8 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFRow;
+
+import javax.management.Query;
 
 public class PlanningInstructionsTest {
 
@@ -528,14 +531,14 @@ public class PlanningInstructionsTest {
     }
 
     public static DBConnection getConnection_PRD_CWFENG() throws SQLException {
-        DBConnection connection = new DBConnection("jdbc:netezza://npsdwh.con-way.com/PRD_CWFENG", "LXZAMORA", "liza_082416");
+        DBConnection connection = new DBConnection(QueryConstants.NETEZZA_PRDCWFENG_URL.getValue(),QueryConstants.NETEZZA_USERNAME.getValue(),QueryConstants.NETEZZA_PASSWORD.getValue());
         connection.createConnection();
         return connection;
 
     }
 
     public static DBConnection getConnection_PRD_WHSEVIEW() throws SQLException {
-        DBConnection connection = new DBConnection("jdbc:netezza://npsdwh.con-way.com/PRD_WHSEVIEW?allowMultiQuery=true", "LXZAMORA", "liza_082416");
+        DBConnection connection = new DBConnection(QueryConstants.NETEZZA_PRDWHSEVW_URL.getValue(),QueryConstants.NETEZZA_USERNAME.getValue(),QueryConstants.NETEZZA_PASSWORD.getValue());
         connection.createConnection();
         return connection;
     }
