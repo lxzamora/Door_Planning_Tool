@@ -62,7 +62,7 @@ public class PlanningInstructionsTest {
         System.out.println(sic);
 
         int rowCounter = 0;
-        int scheduleCounter = 0;
+        int sheet3_rowCounter = 0;
 
         try {
             String shift_abbreviation = "OTB";
@@ -140,6 +140,7 @@ public class PlanningInstructionsTest {
 
             Sheet sheet = workbook.createSheet("Door Planning");
             Sheet sheet1 = workbook.createSheet("Door Changes");
+            Sheet sheet2 = workbook.createSheet("Condensed Door Planning");
             //System.out.println("point 3");
 
             //the header
@@ -161,8 +162,11 @@ public class PlanningInstructionsTest {
             //header_highlighted_style.setWrapText(true);
 
             String headers[];
+            String headers2[];
             headers = new String[]{"SIC", "Shift", "DAYFRT", "1st FAC", "Must Clear", "2nd FAC", "3rd FAC",
                     "Dest Sic", "Bypass", "AVG WGT", "AVG CUBE"};
+
+            headers2 = new String[]{"Load SIC","Unload SIC","DAYHAUL","1st FAC","Must Clear","2nd FAC","3rd FAC"};
 
             if (fac_shift) {
                 headers = new String[]{"SIC", "Shift", "DAYFRT", "1st FAC", "Must Clear", "2nd FAC", "3rd FAC",
@@ -171,10 +175,9 @@ public class PlanningInstructionsTest {
 
             //create header row
             Row row = sheet.createRow(rowCounter);
+            Row sheet2_header_row = sheet2.createRow(rowCounter);
 
             // Create a cell and put a value in it.
-
-
             for (int i = 0; i < headers.length; i++) {
                 Cell cell = row.createCell(i);
                 cell.setCellValue(headers[i]);
@@ -183,8 +186,13 @@ public class PlanningInstructionsTest {
                 } else {
                     cell.setCellStyle(header_style);
                 }
+            }
 
-
+            //Create header row of third sheet
+            for (int i = 0; i < headers2.length; i++){
+                Cell cell = sheet2_header_row.createCell(i);
+                cell.setCellValue(headers2[i]);
+                //cell.setCellStyle(header_style);
             }
 
             //general label content format
@@ -216,7 +224,6 @@ public class PlanningInstructionsTest {
             number_style.setDataFormat(workbook.createDataFormat().getFormat("#,##0"));
             number_style.setAlignment(CellStyle.ALIGN_CENTER);
             number_style.setFont(text_font);
-
 
             //highlighted format for Recommended door
             CellStyle x_style = workbook.createCellStyle();
@@ -267,17 +274,23 @@ public class PlanningInstructionsTest {
 
             while (rs.next()) {
                 rowCounter++;
+                sheet3_rowCounter++;
                 Row new_row = sheet.createRow(rowCounter);
+                Row sheet2_new_row = sheet2.createRow(sheet3_rowCounter);
+                String dayhaul = "";
                 boolean recommended_door = false;
                 orig_sic = rs.getString("orig_sic");
                 orig_shift = rs.getString("orig_shift");
                 load_to_sic1 = rs.getString("load_to_sic1");
                 must_clear_sic = rs.getString("must_clear_sic");
                 daylane_freight = rs.getString("daylane_freight");
+
                 if (daylane_freight.equals("Y")) {
                     daylane_freight = "D";
+                    dayhaul = "Y";
                 } else {
                     daylane_freight = "";
+                    dayhaul = "N";
                 }
 
                 load_to_sic2 = rs.getString("load_to_sic2");
@@ -288,20 +301,107 @@ public class PlanningInstructionsTest {
                 avg_weight = rs.getDouble("avg_weight");
                 avg_cube = rs.getDouble("avg_cube");
 
+                String firstFAC = load_to_sic1;
+                if(load_to_sic1.contains(" D")){
+                    firstFAC = load_to_sic1.substring(0,3);
+                    dayhaul = "Y";
+                }
+
+//                String firstFAC = "";
+//                if(load_to_sic1.length()>3 && daylane_freight.equals("Y")){
+//                    firstFAC = load_to_sic1.substring(0,3);
+//                    dayhaul = "Y";
+//                }
+
+                //unload_sic logic in condensed door planning
+                String unload_sic = "";
+                if(dest_sic.length()!=0){
+                    unload_sic = dest_sic.trim();
+                }else if(load_to_sic3.length()!=0){
+                    unload_sic = load_to_sic3.trim();
+                }else if(load_to_sic2.length()!=0){
+                    unload_sic = load_to_sic2.trim();
+                }else if(must_clear_sic.length()!=0){
+                    unload_sic = must_clear_sic.trim();
+                }else if(load_to_sic1.length()!=0){
+                    unload_sic = firstFAC.trim();
+                }
+
                 if (head_load.equals("X") && (!fac_shift)) {
-                    //Cell cell = new_row.createCell(8);
+                    Cell orig_sic_cell = sheet2_new_row.createCell(0);
+                    orig_sic_cell.setCellValue(orig_sic);
+                    orig_sic_cell.setCellStyle(text_style);
+
+                    Cell dest_sic_cell = sheet2_new_row.createCell(1);
+                    dest_sic_cell.setCellValue(unload_sic);
+                    dest_sic_cell.setCellStyle(text_style);
+
+                    Cell daylane_freight_cell = sheet2_new_row.createCell(2);
+                    daylane_freight_cell.setCellValue(dayhaul);
+                    daylane_freight_cell.setCellStyle(text_style);
+
+                    Cell load_to_sic1_cell = sheet2_new_row.createCell(3);
+                    load_to_sic1_cell.setCellValue(firstFAC);
+                    load_to_sic1_cell.setCellStyle(text_style);
+
+                    Cell must_clear_sic_cell = sheet2_new_row.createCell(4);
+                    must_clear_sic_cell.setCellValue(must_clear_sic);
+                    must_clear_sic_cell.setCellStyle(text_style);
+
+                    Cell load_to_sic2_cell = sheet2_new_row.createCell(5);
+                    load_to_sic2_cell.setCellValue(load_to_sic2);
+                    load_to_sic2_cell.setCellStyle(text_style);
+
+                    Cell load_to_sic3_cell = sheet2_new_row.createCell(6);
+                    load_to_sic3_cell.setCellValue(load_to_sic3);
+                    load_to_sic3_cell.setCellStyle(text_style);
+
+                    //Cell cell = sheet2_new_row.createCell(8);
                     //cell.setCellValue(head_load);
                     //cell.setCellStyle(x_style);
                     recommended_door = true;
                 }
 
                 if (bypass.equals("X") && (!fac_shift)) {
+                    //prints bypass indicator in first sheet
                     Cell cell = new_row.createCell(8);
                     cell.setCellValue(head_load);
                     cell.setCellStyle(x_style);
                     recommended_door = true;
+
+                    //prints row in third sheet
+                    Cell orig_sic_cell = sheet2_new_row.createCell(0);
+                    orig_sic_cell.setCellValue(orig_sic);
+                    orig_sic_cell.setCellStyle(text_style);
+
+                    Cell dest_sic_cell = sheet2_new_row.createCell(1);
+                    dest_sic_cell.setCellValue(unload_sic);
+                    dest_sic_cell.setCellStyle(text_style);
+
+                    Cell daylane_freight_cell = sheet2_new_row.createCell(2);
+                    daylane_freight_cell.setCellValue(dayhaul);
+                    daylane_freight_cell.setCellStyle(text_style);
+
+                    Cell load_to_sic1_cell = sheet2_new_row.createCell(3);
+                    load_to_sic1_cell.setCellValue(firstFAC);
+                    load_to_sic1_cell.setCellStyle(text_style);
+
+                    Cell must_clear_sic_cell = sheet2_new_row.createCell(4);
+                    must_clear_sic_cell.setCellValue(must_clear_sic);
+                    must_clear_sic_cell.setCellStyle(text_style);
+
+                    Cell load_to_sic2_cell = sheet2_new_row.createCell(5);
+                    load_to_sic2_cell.setCellValue(load_to_sic2);
+                    load_to_sic2_cell.setCellStyle(text_style);
+
+                    Cell load_to_sic3_cell = sheet2_new_row.createCell(6);
+                    load_to_sic3_cell.setCellValue(load_to_sic3);
+                    load_to_sic3_cell.setCellStyle(text_style);
                 }
 
+                if(!(head_load.equals("X")||bypass.equals("X")) && !fac_shift){
+                    sheet3_rowCounter--;
+                }
 
                 if (bypass.equals("X") && fac_shift) {
                     Cell cell = new_row.createCell(9);
@@ -392,7 +492,6 @@ public class PlanningInstructionsTest {
                 orig_shift_cell.setCellValue(orig_shift);
                 orig_shift_cell.setCellStyle(text_style);
 
-
                 Cell daylane_freight_cell = new_row.createCell(2);
                 daylane_freight_cell.setCellValue(daylane_freight);
                 daylane_freight_cell.setCellStyle(text_style);
@@ -404,7 +503,6 @@ public class PlanningInstructionsTest {
                 Cell must_clear_sic_cell = new_row.createCell(4);
                 must_clear_sic_cell.setCellValue(must_clear_sic);
                 must_clear_sic_cell.setCellStyle(text_style);
-
 
                 Cell load_to_sic2_cell = new_row.createCell(5);
                 load_to_sic2_cell.setCellValue(load_to_sic2);
@@ -419,7 +517,9 @@ public class PlanningInstructionsTest {
                 dest_sic_cell.setCellStyle(recommended_door ? callout_style : dest_style);
 
             }
+
             rowCounter--;
+            sheet3_rowCounter--;
             sheet.autoSizeColumn(2);
             sheet.autoSizeColumn(3);
             sheet.autoSizeColumn(4);
@@ -428,6 +528,9 @@ public class PlanningInstructionsTest {
             sheet.autoSizeColumn(7);
             sheet.autoSizeColumn(8);
             sheet.autoSizeColumn(9);
+            for(int i=0;i<headers2.length;i++){
+                sheet2.autoSizeColumn(i);
+            }
 
             sheet.createFreezePane(0, 1, 0, 1);
             //sheet.setAutoFilter(new CellRangeAddress.valueOf("C5:F200"));
@@ -451,7 +554,6 @@ public class PlanningInstructionsTest {
             rs = DatabaseUtil.executeAddDoorQuery(prdcwfengConn, plan);
             rs.setFetchSize(1000);
             rowCounter = 0;
-
 
             String added_door;
             String removed_door;
@@ -478,7 +580,6 @@ public class PlanningInstructionsTest {
             removed_door_header.setCellValue("Removed Doors");
             removed_door_header.setCellStyle(header_highlighted_style);
 
-
             rs = DatabaseUtil.executeRemoveDoorQuery(prdcwfengConn, plan);
 
             rs.setFetchSize(1000);
@@ -498,6 +599,9 @@ public class PlanningInstructionsTest {
             sheet1.getPrintSetup().setFitWidth((short) 1);
             sheet1.getPrintSetup().setFitHeight((short) 0);
 
+            if(fac_shift){
+                workbook.removeSheetAt(2);
+            }
 
             String door_planning_file = output_file_path + sic + door_planning_text + shift_abbreviation + file_extension;
 

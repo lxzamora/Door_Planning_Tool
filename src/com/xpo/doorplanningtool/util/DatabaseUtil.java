@@ -39,7 +39,7 @@ public class DatabaseUtil {
 
     public static ResultSet executeQuery1(DBConnection connection, Plan plan) throws SQLException {
         String sql_query1 = "select *  from ffo_planning_tool order by orig_sic, orig_shift, load_to_mode1, load_to_sic1 desc, load_to_shift1 desc, must_clear_sic desc, must_clear_shift desc, daylane_freight desc, load_to_sic2 desc, load_to_shift2 desc, load_to_sic3 desc, load_to_shift3 desc, dest_sic desc;";
-        System.out.println(sql_query1);
+        //System.out.println(sql_query1);
 
         return connection.executeQuery(sql_query1);
     }
@@ -322,7 +322,7 @@ public class DatabaseUtil {
                 "union\n" +
                 "select load_to_sic1 as sic, bypass from ffo_base_plan_1st_fac_combined where head_load ='X');";
 
-        System.out.println(sql_updated);
+        //System.out.println(sql_updated);
         connection.executeUpdate(sql_updated);
     }
 
