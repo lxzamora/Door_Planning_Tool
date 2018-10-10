@@ -62,7 +62,7 @@ public class PlanningInstructionsTest {
         System.out.println(sic);
 
         int rowCounter = 0;
-        int sheet3_rowCounter = 0;
+        int sheet2_rowCounter = 0;
 
         try {
             String shift_abbreviation = "OTB";
@@ -175,7 +175,7 @@ public class PlanningInstructionsTest {
 
             //create header row
             Row row = sheet.createRow(rowCounter);
-            Row sheet2_header_row = sheet2.createRow(rowCounter);
+            Row sheet2_header_row = sheet2.createRow(sheet2_rowCounter);
 
             // Create a cell and put a value in it.
             for (int i = 0; i < headers.length; i++) {
@@ -274,9 +274,9 @@ public class PlanningInstructionsTest {
 
             while (rs.next()) {
                 rowCounter++;
-                sheet3_rowCounter++;
+                //sheet2_rowCounter++;
                 Row new_row = sheet.createRow(rowCounter);
-                Row sheet2_new_row = sheet2.createRow(sheet3_rowCounter);
+
                 String dayhaul = "";
                 boolean recommended_door = false;
                 orig_sic = rs.getString("orig_sic");
@@ -328,37 +328,37 @@ public class PlanningInstructionsTest {
                 }
 
                 if (head_load.equals("X") && (!fac_shift)) {
-                    Cell orig_sic_cell = sheet2_new_row.createCell(0);
-                    orig_sic_cell.setCellValue(orig_sic);
-                    orig_sic_cell.setCellStyle(text_style);
-
-                    Cell dest_sic_cell = sheet2_new_row.createCell(1);
-                    dest_sic_cell.setCellValue(unload_sic);
-                    dest_sic_cell.setCellStyle(text_style);
-
-                    Cell daylane_freight_cell = sheet2_new_row.createCell(2);
-                    daylane_freight_cell.setCellValue(dayhaul);
-                    daylane_freight_cell.setCellStyle(text_style);
-
-                    Cell load_to_sic1_cell = sheet2_new_row.createCell(3);
-                    load_to_sic1_cell.setCellValue(firstFAC.trim());
-                    load_to_sic1_cell.setCellStyle(text_style);
-
-                    Cell must_clear_sic_cell = sheet2_new_row.createCell(4);
-                    must_clear_sic_cell.setCellValue(must_clear_sic);
-                    must_clear_sic_cell.setCellStyle(text_style);
-
-                    Cell load_to_sic2_cell = sheet2_new_row.createCell(5);
-                    load_to_sic2_cell.setCellValue(load_to_sic2);
-                    load_to_sic2_cell.setCellStyle(text_style);
-
-                    Cell load_to_sic3_cell = sheet2_new_row.createCell(6);
-                    load_to_sic3_cell.setCellValue(load_to_sic3);
-                    load_to_sic3_cell.setCellStyle(text_style);
-
-                    //Cell cell = sheet2_new_row.createCell(8);
-                    //cell.setCellValue(head_load);
-                    //cell.setCellStyle(x_style);
+//                    Cell orig_sic_cell = sheet2_new_row.createCell(0);
+//                    orig_sic_cell.setCellValue(orig_sic);
+//                    orig_sic_cell.setCellStyle(text_style);
+//
+//                    Cell dest_sic_cell = sheet2_new_row.createCell(1);
+//                    dest_sic_cell.setCellValue(unload_sic);
+//                    dest_sic_cell.setCellStyle(text_style);
+//
+//                    Cell daylane_freight_cell = sheet2_new_row.createCell(2);
+//                    daylane_freight_cell.setCellValue(dayhaul);
+//                    daylane_freight_cell.setCellStyle(text_style);
+//
+//                    Cell load_to_sic1_cell = sheet2_new_row.createCell(3);
+//                    load_to_sic1_cell.setCellValue(firstFAC.trim());
+//                    load_to_sic1_cell.setCellStyle(text_style);
+//
+//                    Cell must_clear_sic_cell = sheet2_new_row.createCell(4);
+//                    must_clear_sic_cell.setCellValue(must_clear_sic);
+//                    must_clear_sic_cell.setCellStyle(text_style);
+//
+//                    Cell load_to_sic2_cell = sheet2_new_row.createCell(5);
+//                    load_to_sic2_cell.setCellValue(load_to_sic2);
+//                    load_to_sic2_cell.setCellStyle(text_style);
+//
+//                    Cell load_to_sic3_cell = sheet2_new_row.createCell(6);
+//                    load_to_sic3_cell.setCellValue(load_to_sic3);
+//                    load_to_sic3_cell.setCellStyle(text_style);
+//
+//                    Cell cell = sheet2_new_row.createCell(8);
+//                    cell.setCellValue(head_load);
+//                    cell.setCellStyle(x_style);
                     recommended_door = true;
                 }
 
@@ -368,6 +368,8 @@ public class PlanningInstructionsTest {
                     cell.setCellValue(head_load);
                     cell.setCellStyle(x_style);
                     recommended_door = true;
+                    sheet2_rowCounter++;
+                    Row sheet2_new_row = sheet2.createRow(sheet2_rowCounter);
 
                     //prints row in third sheet
                     Cell orig_sic_cell = sheet2_new_row.createCell(0);
@@ -399,9 +401,9 @@ public class PlanningInstructionsTest {
                     load_to_sic3_cell.setCellStyle(text_style);
                 }
 
-                if(!(head_load.equals("X")||bypass.equals("X")) && !fac_shift){
-                    sheet3_rowCounter--;
-                }
+//                if(!(head_load.equals("X")||bypass.equals("X")) && !fac_shift){
+//                    sheet2_rowCounter--;
+//                }
 
                 if (bypass.equals("X") && fac_shift) {
                     Cell cell = new_row.createCell(9);
@@ -434,6 +436,40 @@ public class PlanningInstructionsTest {
                                         Cell avg_cube_cell = new_row.createCell(10);
                                         avg_cube_cell.setCellValue(avg_cube);
                                         avg_cube_cell.setCellStyle(pct_style);
+
+                                        if(!bypass.equals("X")){
+                                            sheet2_rowCounter++;
+                                            Row sheet2_new_row = sheet2.createRow(sheet2_rowCounter);
+
+                                            //prints row in third sheet
+                                            Cell orig_sic_cell = sheet2_new_row.createCell(0);
+                                            orig_sic_cell.setCellValue(orig_sic);
+                                            orig_sic_cell.setCellStyle(text_style);
+
+                                            Cell dest_sic_cell = sheet2_new_row.createCell(1);
+                                            dest_sic_cell.setCellValue(unload_sic);
+                                            dest_sic_cell.setCellStyle(text_style);
+
+                                            Cell daylane_freight_cell = sheet2_new_row.createCell(2);
+                                            daylane_freight_cell.setCellValue(dayhaul);
+                                            daylane_freight_cell.setCellStyle(text_style);
+
+                                            Cell load_to_sic1_cell = sheet2_new_row.createCell(3);
+                                            load_to_sic1_cell.setCellValue(firstFAC.trim());
+                                            load_to_sic1_cell.setCellStyle(text_style);
+
+                                            Cell must_clear_sic_cell = sheet2_new_row.createCell(4);
+                                            must_clear_sic_cell.setCellValue(must_clear_sic);
+                                            must_clear_sic_cell.setCellStyle(text_style);
+
+                                            Cell load_to_sic2_cell = sheet2_new_row.createCell(5);
+                                            load_to_sic2_cell.setCellValue(load_to_sic2);
+                                            load_to_sic2_cell.setCellStyle(text_style);
+
+                                            Cell load_to_sic3_cell = sheet2_new_row.createCell(6);
+                                            load_to_sic3_cell.setCellValue(load_to_sic3);
+                                            load_to_sic3_cell.setCellStyle(text_style);
+                                        }
                                     }
 
                                     //insert a gray row
@@ -454,6 +490,10 @@ public class PlanningInstructionsTest {
                                     load_door_cell.setCellValue("X");
                                     load_door_cell.setCellStyle(x_style);
                                 }
+                                //removes duplicate row in third sheet
+                                if(bypass.equals("X") && !fac_shift) {
+                                    sheet2_rowCounter--;
+                                }
 
                                 continue;
                             }
@@ -469,6 +509,10 @@ public class PlanningInstructionsTest {
                                 load_door_cell.setCellValue("X");
                                 load_door_cell.setCellStyle(x_style);
                             }
+                            //removes duplicate row in third sheet
+                            if(bypass.equals("X") && !fac_shift) {
+                                sheet2_rowCounter--;
+                            }
 
                             continue;
                         }
@@ -478,6 +522,10 @@ public class PlanningInstructionsTest {
                         Cell cell = new_row.createCell(6);
                         cell.setCellValue(load_to_sic3);
                         cell.setCellStyle(recommended_door ? callout_style : third_FAC_style);
+                        //removes duplicate row in third sheet
+                        if(bypass.equals("X") && !fac_shift) {
+                            sheet2_rowCounter--;
+                        }
 
                         continue;
                     }
@@ -519,7 +567,7 @@ public class PlanningInstructionsTest {
             }
 
             rowCounter--;
-            sheet3_rowCounter--;
+            //sheet2_rowCounter--;
             sheet.autoSizeColumn(2);
             sheet.autoSizeColumn(3);
             sheet.autoSizeColumn(4);
