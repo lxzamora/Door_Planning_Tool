@@ -307,12 +307,6 @@ public class PlanningInstructionsTest {
                     dayhaul = "Y";
                 }
 
-//                String firstFAC = "";
-//                if(load_to_sic1.length()>3 && daylane_freight.equals("Y")){
-//                    firstFAC = load_to_sic1.substring(0,3);
-//                    dayhaul = "Y";
-//                }
-
                 //unload_sic logic in condensed door planning
                 String unload_sic = "";
                 if(dest_sic.length()!=0){
@@ -368,37 +362,42 @@ public class PlanningInstructionsTest {
                     cell.setCellValue(head_load);
                     cell.setCellStyle(x_style);
                     recommended_door = true;
-                    sheet2_rowCounter++;
-                    Row sheet2_new_row = sheet2.createRow(sheet2_rowCounter);
 
-                    //prints row in third sheet
-                    Cell orig_sic_cell = sheet2_new_row.createCell(0);
-                    orig_sic_cell.setCellValue(orig_sic);
-                    orig_sic_cell.setCellStyle(text_style);
+                    if(dest_sic.equals("")) {
+                        sheet2_rowCounter++;
+                        Row sheet2_new_row = sheet2.createRow(sheet2_rowCounter);
 
-                    Cell dest_sic_cell = sheet2_new_row.createCell(1);
-                    dest_sic_cell.setCellValue(unload_sic);
-                    dest_sic_cell.setCellStyle(text_style);
+                        System.out.println(dest_sic + "----" + sheet2_rowCounter);
 
-                    Cell daylane_freight_cell = sheet2_new_row.createCell(2);
-                    daylane_freight_cell.setCellValue(dayhaul);
-                    daylane_freight_cell.setCellStyle(text_style);
+                        //prints row in third sheet
+                        Cell orig_sic_cell = sheet2_new_row.createCell(0);
+                        orig_sic_cell.setCellValue(orig_sic);
+                        orig_sic_cell.setCellStyle(text_style);
 
-                    Cell load_to_sic1_cell = sheet2_new_row.createCell(3);
-                    load_to_sic1_cell.setCellValue(firstFAC.trim());
-                    load_to_sic1_cell.setCellStyle(text_style);
+                        Cell dest_sic_cell = sheet2_new_row.createCell(1);
+                        dest_sic_cell.setCellValue(unload_sic);
+                        dest_sic_cell.setCellStyle(text_style);
 
-                    Cell must_clear_sic_cell = sheet2_new_row.createCell(4);
-                    must_clear_sic_cell.setCellValue(must_clear_sic);
-                    must_clear_sic_cell.setCellStyle(text_style);
+                        Cell daylane_freight_cell = sheet2_new_row.createCell(2);
+                        daylane_freight_cell.setCellValue(dayhaul);
+                        daylane_freight_cell.setCellStyle(text_style);
 
-                    Cell load_to_sic2_cell = sheet2_new_row.createCell(5);
-                    load_to_sic2_cell.setCellValue(load_to_sic2);
-                    load_to_sic2_cell.setCellStyle(text_style);
+                        Cell load_to_sic1_cell = sheet2_new_row.createCell(3);
+                        load_to_sic1_cell.setCellValue(firstFAC.trim());
+                        load_to_sic1_cell.setCellStyle(text_style);
 
-                    Cell load_to_sic3_cell = sheet2_new_row.createCell(6);
-                    load_to_sic3_cell.setCellValue(load_to_sic3);
-                    load_to_sic3_cell.setCellStyle(text_style);
+                        Cell must_clear_sic_cell = sheet2_new_row.createCell(4);
+                        must_clear_sic_cell.setCellValue(must_clear_sic);
+                        must_clear_sic_cell.setCellStyle(text_style);
+
+                        Cell load_to_sic2_cell = sheet2_new_row.createCell(5);
+                        load_to_sic2_cell.setCellValue(load_to_sic2);
+                        load_to_sic2_cell.setCellStyle(text_style);
+
+                        Cell load_to_sic3_cell = sheet2_new_row.createCell(6);
+                        load_to_sic3_cell.setCellValue(load_to_sic3);
+                        load_to_sic3_cell.setCellStyle(text_style);
+                    }
                 }
 
 //                if(!(head_load.equals("X")||bypass.equals("X")) && !fac_shift){
@@ -490,10 +489,10 @@ public class PlanningInstructionsTest {
                                     load_door_cell.setCellValue("X");
                                     load_door_cell.setCellStyle(x_style);
                                 }
-                                //removes duplicate row in third sheet
-                                if(bypass.equals("X") && !fac_shift) {
-                                    sheet2_rowCounter--;
-                                }
+//                                //removes duplicate row in third sheet
+//                                if(bypass.equals("X") && !fac_shift) {
+//                                    sheet2_rowCounter--;
+//                                }
 
                                 continue;
                             }
@@ -509,10 +508,10 @@ public class PlanningInstructionsTest {
                                 load_door_cell.setCellValue("X");
                                 load_door_cell.setCellStyle(x_style);
                             }
-                            //removes duplicate row in third sheet
-                            if(bypass.equals("X") && !fac_shift) {
-                                sheet2_rowCounter--;
-                            }
+//                            //removes duplicate row in third sheet
+//                            if(bypass.equals("X") && !fac_shift) {
+//                                sheet2_rowCounter--;
+//                            }
 
                             continue;
                         }
@@ -522,10 +521,10 @@ public class PlanningInstructionsTest {
                         Cell cell = new_row.createCell(6);
                         cell.setCellValue(load_to_sic3);
                         cell.setCellStyle(recommended_door ? callout_style : third_FAC_style);
-                        //removes duplicate row in third sheet
-                        if(bypass.equals("X") && !fac_shift) {
-                            sheet2_rowCounter--;
-                        }
+//                        //removes duplicate row in third sheet
+//                        if(bypass.equals("X") && !fac_shift) {
+//                            sheet2_rowCounter--;
+//                        }
 
                         continue;
                     }
