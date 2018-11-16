@@ -4,6 +4,7 @@ import com.xpo.doorplanningtool.cnst.QueryConstants;
 import com.xpo.doorplanningtool.database.DBConnection;
 import com.xpo.doorplanningtool.util.DatabaseUtil;
 import com.xpo.doorplanningtool.util.EmailUtil;
+import com.xpo.doorplanningtool.vo.BypassLane;
 import com.xpo.doorplanningtool.vo.Plan;
 import com.xpo.doorplanningtool.vo.Threshold;
 import org.apache.log4j.FileAppender;
@@ -16,19 +17,19 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 
+import javax.xml.crypto.Data;
+import java.util.Date;
+import java.text.SimpleDateFormat;
 import java.io.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class PlanningInstructionsTest {
 
-    String to_address1 = "Liza.Zamora@xpo.com";
-    //String to_address1 =  "opspersonnel-" + sic + "@con-way.com";
-
     String input_file_path = "\\\\cgoprfp003\\public\\Freight\\FreightFlowPlans\\PLANNING WORKBOOKS\\";
-    String output_file_path = "C:\\Projects\\data\\";
+    String output_file_path = "\\\\cgoprfp003\\Public\\Freight\\FreightFlowPlans\\PLANNING WORKBOOKS\\";
     //String output_file_name_str1 = "\\\\cgoprfp003\\public\\Freight\\FreightFlowPlans\\PLANNING WORKBOOKS\\";
-    //String output_file_name_str1 = "O:\\Freight\\FreightFlowPlans\\PLANNING WORKBOOKS\\";
+    //String output_file_path = "C:\\Projects\\data\\";
     String door_planning_text = "_door_planning_";
     String file_extension = ".xls";
 
@@ -36,6 +37,9 @@ public class PlanningInstructionsTest {
     void generateInstructions(Plan plan, Threshold threshold) {
         String sic = plan.getSic();
         boolean fac_shift = plan.isFac_shift();
+
+        String to_address1 =  "opspersonnel-" + sic + "@con-way.com";
+        //String to_address1 = "Liza.Zamora@xpo.com";
 
         PatternLayout layout = new PatternLayout();
         String conversionPattern = "%-7p %d [%t] %c %x - %m%n";
@@ -272,6 +276,9 @@ public class PlanningInstructionsTest {
 
             // System.out.println("point 3");
 
+            SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy");
+            String timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+
             while (rs.next()) {
                 rowCounter++;
                 //sheet2_rowCounter++;
@@ -322,37 +329,6 @@ public class PlanningInstructionsTest {
                 }
 
                 if (head_load.equals("X") && (!fac_shift)) {
-//                    Cell orig_sic_cell = sheet2_new_row.createCell(0);
-//                    orig_sic_cell.setCellValue(orig_sic);
-//                    orig_sic_cell.setCellStyle(text_style);
-//
-//                    Cell dest_sic_cell = sheet2_new_row.createCell(1);
-//                    dest_sic_cell.setCellValue(unload_sic);
-//                    dest_sic_cell.setCellStyle(text_style);
-//
-//                    Cell daylane_freight_cell = sheet2_new_row.createCell(2);
-//                    daylane_freight_cell.setCellValue(dayhaul);
-//                    daylane_freight_cell.setCellStyle(text_style);
-//
-//                    Cell load_to_sic1_cell = sheet2_new_row.createCell(3);
-//                    load_to_sic1_cell.setCellValue(firstFAC.trim());
-//                    load_to_sic1_cell.setCellStyle(text_style);
-//
-//                    Cell must_clear_sic_cell = sheet2_new_row.createCell(4);
-//                    must_clear_sic_cell.setCellValue(must_clear_sic);
-//                    must_clear_sic_cell.setCellStyle(text_style);
-//
-//                    Cell load_to_sic2_cell = sheet2_new_row.createCell(5);
-//                    load_to_sic2_cell.setCellValue(load_to_sic2);
-//                    load_to_sic2_cell.setCellStyle(text_style);
-//
-//                    Cell load_to_sic3_cell = sheet2_new_row.createCell(6);
-//                    load_to_sic3_cell.setCellValue(load_to_sic3);
-//                    load_to_sic3_cell.setCellStyle(text_style);
-//
-//                    Cell cell = sheet2_new_row.createCell(8);
-//                    cell.setCellValue(head_load);
-//                    cell.setCellStyle(x_style);
                     recommended_door = true;
                 }
 
@@ -367,7 +343,7 @@ public class PlanningInstructionsTest {
                         sheet2_rowCounter++;
                         Row sheet2_new_row = sheet2.createRow(sheet2_rowCounter);
 
-                        System.out.println(dest_sic + "----" + sheet2_rowCounter);
+                        //System.out.println(dest_sic + "----" + sheet2_rowCounter);
 
                         //prints row in third sheet
                         Cell orig_sic_cell = sheet2_new_row.createCell(0);
@@ -397,6 +373,14 @@ public class PlanningInstructionsTest {
                         Cell load_to_sic3_cell = sheet2_new_row.createCell(6);
                         load_to_sic3_cell.setCellValue(load_to_sic3);
                         load_to_sic3_cell.setCellStyle(text_style);
+
+                        // insert insertquery here
+                        BypassLane bypassLane =  new BypassLane(timeStamp,plan.getInstruction_date(),orig_sic,"OTB",firstFAC.trim(),must_clear_sic,dayhaul,load_to_sic2,load_to_sic3,unload_sic,"", bypass);
+                        DatabaseUtil.insertBypassLane(prdcwfengConn,bypassLane);
+//                        for (Cell cell2 : sheet2_new_row) {
+//                            System.out.print(cell2.getStringCellValue() + "   ");
+//                        }
+//                        System.out.print("\n");
                     }
                 }
 
@@ -468,10 +452,18 @@ public class PlanningInstructionsTest {
                                             Cell load_to_sic3_cell = sheet2_new_row.createCell(6);
                                             load_to_sic3_cell.setCellValue(load_to_sic3);
                                             load_to_sic3_cell.setCellStyle(text_style);
+
+                                            // insert insertquery here
+                                            BypassLane bypassLane =  new BypassLane(timeStamp,plan.getInstruction_date(),orig_sic,"OTB",firstFAC.trim(),must_clear_sic,dayhaul,load_to_sic2,load_to_sic3,unload_sic,"", "X");
+                                            DatabaseUtil.insertBypassLane(prdcwfengConn,bypassLane);
+//                                            for (Cell cell2 : sheet2_new_row) {
+//                                                System.out.print(cell2.getStringCellValue() + "   ");
+//                                            }
+//                                            System.out.print("\n");
                                         }
                                     }
 
-                                    //insert a gray row
+                                                                        //insert a gray row
                                     rowCounter++;
                                     Row empty_row = sheet.createRow(rowCounter);
                                     empty_row.setRowStyle(empty_row_style);
@@ -630,7 +622,6 @@ public class PlanningInstructionsTest {
             rs = DatabaseUtil.executeRemoveDoorQuery(prdcwfengConn, plan);
 
             rs.setFetchSize(1000);
-            //System.out.println("point 6");
             while (rs.next()) {
                 rowCounter++;
                 Row new_row = sheet1.createRow(rowCounter);

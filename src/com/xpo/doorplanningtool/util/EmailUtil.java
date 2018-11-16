@@ -65,13 +65,15 @@ public class EmailUtil {
 
 			// Set From: header field of the header.
 			message.setFrom(new InternetAddress(from));
-
+			String bcc = "bisubscriptions@xpo.com";
 			// Set To: header field of the header.
 			message.addRecipient(Message.RecipientType.TO,
 					new InternetAddress(to_address));
+			message.addRecipient(Message.RecipientType.BCC,
+					new InternetAddress(bcc));
 
 			// Set Subject: header field
-			message.setSubject("Door Planning Tool " + shift_abbreviation);
+			message.setSubject("Door Planning Tool " + shift_abbreviation + " " + sic.toUpperCase());
 
 			// Create the message part
 			BodyPart messageBodyPart = new MimeBodyPart();

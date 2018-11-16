@@ -1,6 +1,7 @@
 package com.xpo.doorplanningtool.util;
 
 import com.xpo.doorplanningtool.database.DBConnection;
+import com.xpo.doorplanningtool.vo.BypassLane;
 import com.xpo.doorplanningtool.vo.Plan;
 import com.xpo.doorplanningtool.vo.Threshold;
 
@@ -40,7 +41,6 @@ public class DatabaseUtil {
     public static ResultSet executeQuery1(DBConnection connection, Plan plan) throws SQLException {
         String sql_query1 = "select *  from ffo_planning_tool order by orig_sic, orig_shift, load_to_mode1, load_to_sic1 desc, load_to_shift1 desc, must_clear_sic desc, must_clear_shift desc, daylane_freight desc, load_to_sic2 desc, load_to_shift2 desc, load_to_sic3 desc, load_to_shift3 desc, dest_sic desc;";
         //System.out.println(sql_query1);
-
         return connection.executeQuery(sql_query1);
     }
 
@@ -354,4 +354,41 @@ public class DatabaseUtil {
         prepared_statement.executeBatch();
         conn.commit();
     }
+
+    public static void insertBypassLane(DBConnection connection, BypassLane bypassLane) throws SQLException {
+        Connection conn =connection.getConnection();
+        String insertTableSQL =  "insert into FFO_DOOR_PLANNING_WRKBK_V1  (UPDT_TMST,INSTRUCTION_DT,ORIG_SIC,ORIG_SHIFT,LOAD_TO_SIC1,MUST_CLEAR_SIC,DAYLANE_FREIGHT,LOAD_TO_SIC2,LOAD_TO_SIC3,DEST_SIC,HEAD_LOAD,BYPASS) values (?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?, ?)";
+        PreparedStatement prepared_statement = conn.prepareStatement(insertTableSQL);
+
+            String UPDT_TMST= bypassLane.getUpdt_tmst();
+            String INSTRUCTION_DT= bypassLane.getInstruction_dt();
+            String ORIG_SIC= bypassLane.getOrig_sic();
+            String ORIG_SHIFT= bypassLane.getOrig_shift();
+            String LOAD_TO_SIC1= bypassLane.getLoad_to_sic1();
+            String MUST_CLEAR_SIC= bypassLane.getMust_clear_sic();
+            String DAYLANE_FREIGHT= bypassLane.getDaylane_freight();
+            String LOAD_TO_SIC2= bypassLane.getLoad_to_sic2();
+            String LOAD_TO_SIC3= bypassLane.getLoad_to_sic3();
+            String DEST_SIC= bypassLane.getDest_sic();
+            String HEAD_LOAD= bypassLane.getHead_load();
+            String BYPASS= bypassLane.getBypass();
+
+            prepared_statement.setString(1, UPDT_TMST);
+            prepared_statement.setString(2, INSTRUCTION_DT);
+            prepared_statement.setString(3, ORIG_SIC);
+            prepared_statement.setString(4, ORIG_SHIFT);
+            prepared_statement.setString(5, LOAD_TO_SIC1);
+            prepared_statement.setString(6, MUST_CLEAR_SIC);
+            prepared_statement.setString(7, DAYLANE_FREIGHT);
+            prepared_statement.setString(8, LOAD_TO_SIC2);
+            prepared_statement.setString(9, LOAD_TO_SIC3);
+            prepared_statement.setString(10, DEST_SIC);
+            prepared_statement.setString(11, HEAD_LOAD);
+            prepared_statement.setString(12, BYPASS);
+            prepared_statement.addBatch();
+
+        prepared_statement.executeBatch();
+        conn.commit();
+    }
+        
 }
