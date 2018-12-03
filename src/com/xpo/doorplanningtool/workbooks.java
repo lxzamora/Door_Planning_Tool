@@ -224,7 +224,7 @@ public class workbooks {
               //BufferedReader br = new BufferedReader(new FileReader("C:\\Users\\zhang.mingming\\Documents\\Projects\\FFO doorplanning tool POI\\data\\sic.txt"));
               String sic_file;
 
-              sic_file =   "C:\\Projects\\data\\sic.txt";
+              sic_file =   "\\\\cgoprfp003\\Public\\Freight\\FreightFlowPlans\\PLANNING WORKBOOKS\\Door Planning Tool\\sic.txt";
 
               BufferedReader br = new BufferedReader(new FileReader(sic_file));
               String line = br.readLine();
@@ -239,7 +239,7 @@ public class workbooks {
 
               String exception_date_file;
 
-              exception_date_file =   "C:\\Projects\\data\\exceptions.txt";
+              exception_date_file =   "\\\\cgoprfp003\\Public\\Freight\\FreightFlowPlans\\PLANNING WORKBOOKS\\Door Planning Tool\\exceptions.txt";
 
               BufferedReader br_exception = new BufferedReader(new FileReader(exception_date_file));
               line = br_exception.readLine();

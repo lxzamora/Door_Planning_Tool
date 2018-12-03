@@ -24,7 +24,7 @@ public class DatabaseUtil {
                 "A.shift = B.shift\n" +
                 "where A.launch_date = '" + plan.getInstruction_date() + "' and A.orig_sic='" + plan.getSic() + "' and B.door_sic is null and A.shift = '" + plan.getShift() + "'\n"  +
                 "order by A.door_sic; ";
-
+//        System.out.println("add door query ------ \n"+ add_door_sql_query);
         return connection.executeQuery(add_door_sql_query);
     }
 
@@ -34,7 +34,7 @@ public class DatabaseUtil {
                 "left join\n" +
                 "(select distinct door_sic from \n" +
                 "sic_doors_tmp where launch_date='" + plan.getInstruction_date() + "' and orig_sic = '" + plan.getSic() + "' and shift ='" + plan.getShift() + "') as B on A.door_sic = B.door_sic  where B.door_sic is null ;\n";
-
+//        System.out.println("remove door query ------ \n"+ remove_door_sql_query);
         return connection.executeQuery(remove_door_sql_query);
     }
 
@@ -309,27 +309,43 @@ public class DatabaseUtil {
                 "--group by load_to_sic1 and load_to_shift1\n" +
                 "\n" +
                 "order by orig_sic, orig_shift, load_to_mode1, load_to_sic1 desc, load_to_shift1 desc, must_clear_sic desc, must_clear_shift desc, load_to_sic2 desc, load_to_shift2 desc, load_to_sic3 desc, load_to_shift3 desc, dest_sic desc\n" +
-                ");\n"
-                +
-                " create temp table sic_doors as \n" +
-                "(select  dest_sic as sic, bypass from ffo_base_plan_od_exclusive where head_load ='X'\n" +
-                "union\n" +
-                "select load_to_sic3 as sic, bypass from ffo_base_plan_3rd_fac_combined where head_load ='X'\n" +
-                "union\n" +
-                "select load_to_sic2 as sic, bypass from ffo_base_plan_2nd_fac_combined where head_load ='X'\n" +
-                "union\n" +
-                "select  must_clear_sic as sic, bypass  from ffo_base_plan_must_clear_sic_combined where head_load ='X'\n" +
-                "union\n" +
-                "select load_to_sic1 as sic, bypass from ffo_base_plan_1st_fac_combined where head_load ='X');";
+                ");\n";
+        if(plan.isFac_shift()){
+            sql_updated = sql_updated +
+                    " create temp table sic_doors as \n" +
+                    "(select  dest_sic as sic, bypass from ffo_base_plan_od_exclusive where head_load ='X'\n" +
+                    "union\n" +
+                    "select load_to_sic3 as sic, bypass from ffo_base_plan_3rd_fac_combined where head_load ='X'\n" +
+                    "union\n" +
+                    "select load_to_sic2 as sic, bypass from ffo_base_plan_2nd_fac_combined where head_load ='X'\n" +
+                    "union\n" +
+                    "select  must_clear_sic as sic, bypass  from ffo_base_plan_must_clear_sic_combined where head_load ='X'\n" +
+                    "union\n" +
+                    "select load_to_sic1 as sic, bypass from ffo_base_plan_1st_fac_combined where head_load ='X');";
+        }else{ //Modified 11272018 - for outbound shift, only doors marked as bypass should be considered in added or removed doors query
+            sql_updated = sql_updated +
+                    " create temp table sic_doors as \n" +
+                    "(select  dest_sic as sic, bypass from ffo_base_plan_od_exclusive where bypass ='X'\n" +
+                    "union\n" +
+                    "select load_to_sic3 as sic, bypass from ffo_base_plan_3rd_fac_combined where bypass ='X'\n" +
+                    "union\n" +
+                    "select load_to_sic2 as sic, bypass from ffo_base_plan_2nd_fac_combined where bypass ='X'\n" +
+                    "union\n" +
+                    "select  must_clear_sic as sic, bypass  from ffo_base_plan_must_clear_sic_combined where bypass ='X'\n" +
+                    "union\n" +
+                    "select load_to_sic1 as sic, bypass from ffo_base_plan_1st_fac_combined where bypass ='X');";
+        }
 
         //System.out.println(sql_updated);
         connection.executeUpdate(sql_updated);
     }
 
     public static ResultSet executeQuerySicDoors(DBConnection connection, Plan plan) throws SQLException {
-        String sql_query2 = "select sic from sic_doors;";
-        if(plan.isFac_shift())
-            sql_query2 = "select sic from sic_doors where bypass ='X';";
+        String sql_query2;
+//            sql_query2 = "select sic from sic_doors;";
+//        if(plan.isFac_shift()) {
+          sql_query2 = "select sic from sic_doors where bypass ='X';";
+//        }
         return connection.executeQuery(sql_query2);
     }
 
@@ -357,6 +373,7 @@ public class DatabaseUtil {
 
     public static void insertBypassLane(DBConnection connection, BypassLane bypassLane) throws SQLException {
         Connection conn =connection.getConnection();
+        // production table is FFO_DOOR_PLANNING_WRKBK_V1; dev table is FFO_DOOR_PLANNING_WRKBK_TEST2
         String insertTableSQL =  "insert into FFO_DOOR_PLANNING_WRKBK_V1  (UPDT_TMST,INSTRUCTION_DT,ORIG_SIC,ORIG_SHIFT,LOAD_TO_SIC1,MUST_CLEAR_SIC,DAYLANE_FREIGHT,LOAD_TO_SIC2,LOAD_TO_SIC3,DEST_SIC,HEAD_LOAD,BYPASS) values (?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?, ?)";
         PreparedStatement prepared_statement = conn.prepareStatement(insertTableSQL);
 

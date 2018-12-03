@@ -47,7 +47,7 @@ public class PlanningInstructionsTest {
 
         // creates file appender
         FileAppender fileAppender = new FileAppender();
-        fileAppender.setFile("C:\\Projects\\planningInstructionsTest_log.txt");
+        fileAppender.setFile("\\\\cgoprfp003\\Public\\Freight\\FreightFlowPlans\\PLANNING WORKBOOKS\\Door Planning Tool\\planningInstructionsTest_log.txt");
         fileAppender.setLayout(layout);
         fileAppender.activateOptions();
 
