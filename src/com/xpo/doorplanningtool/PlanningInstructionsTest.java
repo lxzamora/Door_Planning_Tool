@@ -332,9 +332,16 @@ public class PlanningInstructionsTest {
                     recommended_door = true;
                 }
 
-                if (bypass.equals("X") && (!fac_shift)) {
+                if (bypass.equals("X")) {
                     //prints bypass indicator in first sheet
-                    Cell cell = new_row.createCell(8);
+                    //modified 03062019 to add condensed door tab to fac
+                    Cell cell;
+                    if(fac_shift) {
+                        cell = new_row.createCell(9);
+                    }else {
+                        cell = new_row.createCell(8);
+                    }
+                    //end modification
                     cell.setCellValue(head_load);
                     cell.setCellStyle(x_style);
                     recommended_door = true;
@@ -375,8 +382,13 @@ public class PlanningInstructionsTest {
                         load_to_sic3_cell.setCellStyle(text_style);
 
                         // insert insertquery here
-                        BypassLane bypassLane =  new BypassLane(timeStamp,plan.getInstruction_date(),orig_sic,"OTB",firstFAC.trim(),must_clear_sic,dayhaul,load_to_sic2,load_to_sic3,unload_sic,"", bypass);
-                        DatabaseUtil.insertBypassLane(prdcwfengConn,bypassLane);
+                        if(!fac_shift) {
+                            BypassLane bypassLane = new BypassLane(timeStamp, plan.getInstruction_date(), orig_sic, "OTB", firstFAC.trim(), must_clear_sic, dayhaul, load_to_sic2, load_to_sic3, unload_sic, "", bypass);
+                            DatabaseUtil.insertBypassLane(prdcwfengConn, bypassLane);
+                        }else{
+                            BypassLane bypassLane =  new BypassLane(timeStamp,plan.getInstruction_date(),orig_sic,"FAC",firstFAC.trim(),must_clear_sic,dayhaul,load_to_sic2,load_to_sic3,unload_sic, head_load, bypass);
+                            DatabaseUtil.insertBypassLane(prdcwfengConn,bypassLane);
+                        }
 //                        for (Cell cell2 : sheet2_new_row) {
 //                            System.out.print(cell2.getStringCellValue() + "   ");
 //                        }
@@ -388,12 +400,13 @@ public class PlanningInstructionsTest {
 //                    sheet2_rowCounter--;
 //                }
 
-                if (bypass.equals("X") && fac_shift) {
-                    Cell cell = new_row.createCell(9);
-                    cell.setCellValue(head_load);
-                    cell.setCellStyle(x_style);
-                    recommended_door = true;
-                }
+                //removed 03062019 to add condensed door planning to FAC
+//                if (bypass.equals("X") && fac_shift) {
+//                    Cell cell = new_row.createCell(9);
+//                    cell.setCellValue(head_load);
+//                    cell.setCellStyle(x_style);
+//                    recommended_door = true;
+//                }
 
                 if (dest_sic.equals("")) {
                     if (load_to_sic3.equals("")) {
@@ -407,6 +420,7 @@ public class PlanningInstructionsTest {
 
                                     if (!fac_shift)    //only OTB need to print out avg weight and cube
                                     {
+                                        //ONLY OUTBOUND overrides bypass logic
                                         // overrides bypass logic and add bypass indicator for all 1st FAC total
                                         Cell forced_bypass_cell = new_row.createCell(8);
                                         forced_bypass_cell.setCellValue("X");
@@ -637,9 +651,9 @@ public class PlanningInstructionsTest {
             sheet1.getPrintSetup().setFitWidth((short) 1);
             sheet1.getPrintSetup().setFitHeight((short) 0);
 
-            if(fac_shift){
-                workbook.removeSheetAt(2);
-            }
+//            if(fac_shift){
+//                workbook.removeSheetAt(2);
+//            }
 
             String door_planning_file = output_file_path + sic + door_planning_text + shift_abbreviation + file_extension;
 
