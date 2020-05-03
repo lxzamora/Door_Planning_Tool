@@ -1,34 +1,24 @@
-/**
+package com.xpo.doorplanningtool; /**
  * Created with IntelliJ IDEA.
  * User: zhang.mingming
  * Date: 7/22/13
  * Time: 10:41 PM
  * To change this template use File | Settings | File Templates.
  */
+import com.xpo.doorplanningtool.vo.Plan;
+import com.xpo.doorplanningtool.vo.Threshold;
+
 import java.io.*;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.GregorianCalendar;
-import java.util.Calendar;
-
-
-//import org.junit.BeforeClass;
-
-
-
-import java.util.Date;
+import java.util.*;
 
 public class workbooks {
-
-
-
 
     //add appender to any Logger (here is root)
 
     public static void main(String[] args) {
-
 
         int length = args.length;
         Calendar current_date = new GregorianCalendar();
@@ -37,6 +27,7 @@ public class workbooks {
         Calendar instruction_date = new GregorianCalendar();
         Calendar prev_instruction_date = new GregorianCalendar();
         String ending_date_str, beginning_date_str, instruction_date_str, prev_instruction_date_str;
+        String max_cube_out, max_weight_out, bypass_threshold, headload_threshold;
 
 
         boolean ending_date_supplied = false;
@@ -51,6 +42,37 @@ public class workbooks {
         //PlanningInstructions planningInstructions = new PlanningInstructions();
         PlanningInstructionsTest planningInstructionsTest = new PlanningInstructionsTest();
 
+        Properties prop = new Properties();
+        Threshold threshold = new Threshold();
+
+        InputStream input = null;
+
+        try {
+
+            input = new FileInputStream("\\\\cgoprfp003\\Public\\Freight\\FreightFlowPlans\\PLANNING WORKBOOKS\\Door Planning Tool\\config.properties");
+            // load a properties file
+            prop.load(input);
+            // get the property value
+            System.out.println("max_cube_out is "+prop.getProperty("max_cube_out"));
+            System.out.println("max_weight_out is "+prop.getProperty("max_weight_out"));
+            System.out.println("bypass_threshold is "+prop.getProperty("bypass_threshold"));
+            System.out.println("headload_threshold is "+prop.getProperty("headload_threshold"));
+            threshold.setMax_cube_out(prop.getProperty("max_cube_out"));
+            threshold.setMax_weight_out(prop.getProperty("max_weight_out"));
+            threshold.setBypass_threshold(prop.getProperty("bypass_threshold"));
+            threshold.setHeadload_threshold(prop.getProperty("headload_threshold"));
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } finally {
+            if (input != null) {
+                try {
+                    input.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
 
         for ( int i = 0; i < length; i ++ )
         {
@@ -195,14 +217,14 @@ public class workbooks {
         System.out.println("ending date is " + ending_date_str + "\n");
         System.out.println("Instruction date is " + instruction_date_str + "\n");
 
-          ArrayList<String> sicArray = new ArrayList<String>();
+        ArrayList<String> sicArray = new ArrayList<String>();
         ArrayList<String> exceptionDateArray = new ArrayList<String>();
 
           try {
               //BufferedReader br = new BufferedReader(new FileReader("C:\\Users\\zhang.mingming\\Documents\\Projects\\FFO doorplanning tool POI\\data\\sic.txt"));
               String sic_file;
 
-              sic_file =   "C:\\Projects\\data\\sic.txt";
+              sic_file =   "\\\\cgoprfp003\\Public\\Freight\\FreightFlowPlans\\PLANNING WORKBOOKS\\Door Planning Tool\\sic.txt";
 
               BufferedReader br = new BufferedReader(new FileReader(sic_file));
               String line = br.readLine();
@@ -217,7 +239,7 @@ public class workbooks {
 
               String exception_date_file;
 
-              exception_date_file =   "C:\\Projects\\data\\exceptions.txt";
+              exception_date_file =   "\\\\cgoprfp003\\Public\\Freight\\FreightFlowPlans\\PLANNING WORKBOOKS\\Door Planning Tool\\exceptions.txt";
 
               BufferedReader br_exception = new BufferedReader(new FileReader(exception_date_file));
               line = br_exception.readLine();
@@ -263,7 +285,7 @@ public class workbooks {
                if (report_opportunity)
                    rehandleOpportunity.calculateOpportunity(sic, beginning_date_str, ending_date_str);
                else if (planning_instructions)
-                   planningInstructionsTest.generateInstructions(sic, beginning_date_str, ending_date_str, instruction_date_str, prev_instruction_date_str, sending_email, fac_shift, is_exception_date);
+                   planningInstructionsTest.generateInstructions(new Plan(sic, beginning_date_str, ending_date_str, instruction_date_str, prev_instruction_date_str, sending_email, fac_shift, is_exception_date), threshold);
 
            }
 
